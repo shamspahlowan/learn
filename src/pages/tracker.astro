@@ -128,9 +128,10 @@ const catalog = {
       ? 'GitHub sign-in is not switched on in Supabase yet. Follow the setup steps in the README.'
       : `Sign-in failed: ${error.message}`;
   });
-  $('sign-out').addEventListener('click', async () => { await supa.auth.signOut(); location.reload(); });
+  $('sign-out').addEventListener('click', () => { supa.auth.signOut(); });
 
   async function boot() {
+    if (location.hash === '#' || location.hash.includes('access_token')) history.replaceState(null, '', location.pathname);
     const { data } = await supa.auth.getSession();
     if (!data.session) { show('v-signin'); return; }
     $('sign-out').hidden = false;
@@ -275,8 +276,16 @@ const catalog = {
   });
   $('t-reset').addEventListener('click', () => { clearInterval(tick); tick = 0; left = FULL; paint(); $('t-start').textContent = 'Start'; });
 
-  supa.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') location.reload(); });
-  boot();
+  // Supabase emits SIGNED_IN on every load once a session exists, so boot once instead of reloading.
+  // Supabase calls are deferred out of the callback to avoid its auth lock deadlock.
+  let booted = false;
+  supa.auth.onAuthStateChange((ev) => {
+    if (ev === 'SIGNED_OUT') { location.reload(); return; }
+    if (!booted && (ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN')) {
+      booted = true;
+      setTimeout(boot, 0);
+    }
+  });
 </script>
 
 <style>
