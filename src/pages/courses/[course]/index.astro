@@ -1,0 +1,186 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Cover from '../../../components/Cover.astro';
+import ResourceList from '../../../components/ResourceList.astro';
+import { allCourses, CATEGORIES, lessonsOf, PATHS, type Course } from '../../../lib/courses';
+import { url } from '../../../lib/site';
+
+export async function getStaticPaths() {
+  const courses = await allCourses();
+  return courses.map((c) => ({ params: { course: c.slug }, props: { course: c, all: courses } }));
+}
+interface Props { course: Course; all: Course[] }
+const { course, all } = Astro.props;
+const lessons = lessonsOf(course);
+const byModule = course.modules.map((m, i) => ({ ...m, refs: lessons.filter((l) => l.moduleIndex === i) }));
+const prereqs = course.prereqs.map((p) => all.find((c) => c.slug === p)).filter(Boolean) as Course[];
+const nextInPath = (() => {
+  for (const p of PATHS) {
+    const i = p.courses.indexOf(course.slug);
+    if (i !== -1 && i < p.courses.length - 1) {
+      const n = all.find((c) => c.slug === p.courses[i + 1]);
+      if (n) return { path: p, course: n };
+    }
+  }
+  return null;
+})();
+const counts = { core: 0, interview: 0, research: 0 };
+lessons.forEach((l) => counts[l.depth]++);
+---
+<Base title={course.title} description={course.summary}>
+  <div data-pagefind-body>
+    <section class="hdr-band">
+      <div class:list={['wrap', 'hdr', `cat-${course.category}`]}>
+        <div class="hdr-copy">
+          <span class="eyebrow cat"><a href={url('/courses/')}>Courses</a> / {CATEGORIES[course.category]}</span>
+          <h1>{course.title}</h1>
+          <p class="lede">{course.summary}</p>
+          <dl class="nums">
+            <div><dt>modules</dt><dd>{course.modules.length}</dd></div>
+            <div><dt>lessons</dt><dd>{lessons.length}</dd></div>
+            <div><dt>estimated</dt><dd>~{course.hours} h</dd></div>
+            <div><dt>prerequisites</dt><dd class="pre">{prereqs.length ? prereqs.map((p, i) => <a href={url(`/courses/${p.slug}/`)}>{p.title}{i < prereqs.length - 1 ? ', ' : ''}</a>) : 'None'}</dd></div>
+          </dl>
+          <div class="cta">
+            <a class="btn primary" href={url(`/courses/${course.slug}/${lessons[0].slug}/`)}>Start lesson 1.1 <span aria-hidden="true">→</span></a>
+            <a class="btn" href="#syllabus">See the syllabus</a>
+          </div>
+        </div>
+        <div class="cover-wrap"><Cover slug={course.slug} category={course.category} big /></div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      {course.outcomes.length > 0 && (
+        <section class="block">
+          <h2>By the end you can</h2>
+          <ul class="outs">{course.outcomes.map((o) => <li>{o}</li>)}</ul>
+        </section>
+      )}
+
+      {course.course_resources.length > 0 && (
+        <section class="block">
+          <h2>Main resources</h2>
+          <div class="card pad"><ResourceList items={course.course_resources} /></div>
+        </section>
+      )}
+
+      <section class="block" id="syllabus">
+        <div class="syl-head">
+          <h2>Syllabus</h2>
+          <div class="legend">
+            <span><span class="chip d-core">core</span> {counts.core}</span>
+            <span><span class="chip d-interview">interview</span> {counts.interview}</span>
+            <span><span class="chip d-research">research</span> {counts.research}</span>
+          </div>
+        </div>
+        {byModule.map((m, mi) => (
+          <details class="mod card" open={mi === 0}>
+            <summary>
+              <span class="mono mnum">{String(mi + 1).padStart(2, '0')}</span>
+              <span class="mtitle">{m.title}<span class="mmeta">{m.refs.length} lessons{m.practice.length ? ` · ${m.practice.length} practice` : ''}</span></span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+            </summary>
+            <ol class="lessons">
+              {m.refs.map((l) => (
+                <li>
+                  <a href={url(`/courses/${course.slug}/${l.slug}/`)} class="lrow" data-lesson={l.slug}>
+                    <span class="status" aria-hidden="true"></span>
+                    <span class="mono lnum">{l.number}</span>
+                    <span class="ltitle">{l.title}</span>
+                    {l.anim && <span class="anim mono" title="Animation planned" data-pagefind-ignore>▶</span>}
+                    <span class={`chip d-${l.depth}`} data-pagefind-ignore>{l.depth}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+            {(m.resources.length > 0 || m.practice.length > 0) && (
+              <div class="mres">
+                {m.resources.length > 0 && <div><span class="eyebrow">Learn it from</span><ResourceList items={m.resources} /></div>}
+                {m.practice.length > 0 && <div><span class="eyebrow">Practice</span><ResourceList items={m.practice} practice /></div>}
+              </div>
+            )}
+          </details>
+        ))}
+      </section>
+
+      {nextInPath && (
+        <a class="next" href={url(`/courses/${nextInPath.course.slug}/`)}>
+          <div><span class="eyebrow ac">Next in the {nextInPath.path.title} path</span><div class="ntitle">{nextInPath.course.title}</div></div>
+          <span class="mono">→</span>
+        </a>
+      )}
+    </div>
+  </div>
+</Base>
+
+<script>
+  import { getOwner, mightBeSignedIn, supa } from '../../../scripts/supa';
+  (async () => {
+    if (!mightBeSignedIn()) return;
+    const owner = await getOwner();
+    if (!owner) return;
+    const course = location.pathname.split('/').filter(Boolean).at(-1);
+    const { data } = await supa.from('lesson_progress').select('lesson,status,next_review_at').eq('course', course!);
+    const today = new Date().toISOString().slice(0, 10);
+    for (const row of data ?? []) {
+      const el = document.querySelector<HTMLElement>(`[data-lesson="${row.lesson}"]`);
+      if (!el) continue;
+      el.dataset.status = row.next_review_at && row.next_review_at <= today && row.status === 'done' ? 'review' : row.status;
+    }
+  })();
+</script>
+
+<style>
+  .hdr-band { background: var(--surface); border-bottom: 1px solid var(--line); }
+  .hdr { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 56px; align-items: center; padding-block: 64px 56px; }
+  .hdr-copy { display: flex; flex-direction: column; gap: 20px; }
+  .cat { color: var(--c); }
+  .cat a { color: var(--muted); }
+  h1 { font-size: clamp(36px, 5vw, 54px); line-height: 1.04; letter-spacing: -0.045em; }
+  .lede { font-size: 18px; line-height: 1.6; color: var(--muted); max-width: 34em; }
+  .nums { display: flex; gap: 32px; flex-wrap: wrap; margin: 4px 0 0; }
+  .nums div { display: flex; flex-direction: column-reverse; }
+  .nums dt { font-size: 13px; color: var(--muted); }
+  .nums dd { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.03em; }
+  .nums dd.pre { font-size: 15px; font-weight: 500; letter-spacing: 0; padding-top: 6px; }
+  .pre a { color: var(--accent); }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .cover-wrap { border-radius: 24px; overflow: hidden; border: 1px solid var(--line); }
+  .block { margin-top: 56px; }
+  .block h2 { font-size: 24px; margin-bottom: 18px; }
+  .outs { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .outs li { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; font-size: 15px; line-height: 1.5; }
+  .pad { padding: 8px 22px; }
+  .syl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+  .mod { margin-top: 14px; overflow: hidden; }
+  .mod summary { list-style: none; display: flex; align-items: center; gap: 16px; padding: 20px; cursor: pointer; }
+  .mod summary::-webkit-details-marker { display: none; }
+  .mnum { color: var(--accent); font-size: 13px; width: 26px; }
+  .mtitle { flex: 1; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; display: flex; flex-direction: column; gap: 2px; }
+  .mmeta { font-size: 13px; color: var(--muted); font-weight: 400; letter-spacing: 0; }
+  .chev { color: var(--muted); transition: transform .2s; }
+  .mod[open] .chev { transform: rotate(180deg); }
+  .lessons { list-style: none; margin: 0; padding: 0; }
+  .lrow { display: grid; grid-template-columns: 14px 40px minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 13px 20px; border-top: 1px solid var(--line-soft); font-size: 15px; }
+  .lrow:hover { background: var(--sunk); color: var(--fg); }
+  .status { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--line); }
+  .lrow[data-status='learning'] .status { border-color: var(--sage); background: conic-gradient(var(--sage) 0 50%, transparent 0); }
+  .lrow[data-status='done'] .status { border-color: var(--sage); background: var(--sage); }
+  .lrow[data-status='review'] .status { border-color: var(--amber); background: var(--amber); }
+  .lnum { font-size: 12px; color: var(--muted); }
+  .anim { font-size: 10px; color: var(--muted); }
+  .mres { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; padding: 18px 20px 20px; border-top: 1px solid var(--line-soft); background: var(--bg); }
+  .mres .eyebrow { display: block; margin-bottom: 4px; }
+  .next { margin-top: 48px; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px 24px; border-radius: var(--r-lg); background: var(--ink); color: var(--on-ink); }
+  .next:hover { color: var(--on-ink); opacity: .92; }
+  .ac { color: var(--sage); }
+  :root[data-theme='dark'] .next .ac { color: #2E6A5E; }
+  .ntitle { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-top: 6px; }
+  @media (max-width: 900px) {
+    .hdr, .outs, .mres { grid-template-columns: minmax(0, 1fr); }
+    .lrow { grid-template-columns: 14px 34px minmax(0, 1fr) auto; }
+    .lrow .chip { display: none; }
+  }
+</style>

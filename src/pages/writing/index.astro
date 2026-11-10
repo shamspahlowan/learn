@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { url } from '../../lib/site';
+
+const posts = (await getCollection('writing', ({ data }) => !data.draft)).sort((a, b) => +b.data.date - +a.data.date);
+const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+---
+<Base title="Writing" description="Notes, video posts, project write-ups and weekly retros.">
+  <div class="wrap page">
+    <header class="head">
+      <span class="eyebrow">Blog</span>
+      <h1>Writing</h1>
+      <p class="muted">Notes, video posts, project write-ups and retros. <a class="link-accent" href={url('/rss.xml')}>RSS feed</a></p>
+    </header>
+    {posts.length === 0 ? (
+      <p class="muted">The first post is on its way.</p>
+    ) : (
+      <div class="list">
+        {posts.map((p) => (
+          <a class="row" href={url(`/writing/${p.id}/`)}>
+            <span class="mono muted d">{fmt(p.data.date)}</span>
+            <span class="t">
+              <span class="title">{p.data.title}</span>
+              <span class="muted desc">{p.data.description}</span>
+            </span>
+            <span class={`pill kind-${p.data.kind}`}>{p.data.kind}</span>
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</Base>
+<style>
+  .page { padding-block: 64px; }
+  .head { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+  h1 { font-size: 48px; letter-spacing: -0.045em; }
+  .list { border-top: 1px solid var(--line); }
+  .row { display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; gap: 24px; align-items: baseline; padding: 22px 0; border-bottom: 1px solid var(--line); }
+  .row:hover .title { color: var(--accent); }
+  .d { font-size: 12px; }
+  .t { display: flex; flex-direction: column; gap: 4px; }
+  .title { font-family: var(--f-serif); font-size: 25px; letter-spacing: -0.01em; color: var(--fg); }
+  .desc { font-size: 15px; }
+  .kind-video { --c: var(--indigo); --c-soft: var(--indigo-soft); }
+  .kind-notes { --c: var(--sage); --c-soft: var(--sage-soft); }
+  .kind-project, .kind-retro { --c: var(--amber); --c-soft: var(--amber-soft); }
+  @media (max-width: 700px) { .row { grid-template-columns: minmax(0, 1fr) auto; } .d { display: none; } }
+</style>

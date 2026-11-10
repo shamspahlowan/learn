@@ -1,0 +1,79 @@
+slug: classical-ml
+title: Classical machine learning
+category: ml
+hours: 45
+prereqs: [linear-algebra, probability-statistics, python-for-ml]
+paths: [ml-engineer, ml-research]
+summary: The disciplined tabular ML workflow, from EDA to leakage-free evaluation, plus the models interviews still ask about.
+outcomes:
+  - Run baseline → features → cross-validation → model comparison without leaking data
+  - Explain trees, boosting, SVMs and k-means at whiteboard depth
+  - Pick metrics that match the business problem
+
+course_resources:
+  - {t: "Hands-On Machine Learning (Géron) · scikit-learn and PyTorch edition, 2025", type: book, url: "https://homl.info", free: false, via: community, note: "The most recommended practical book on Reddit; part 1 is classical ML"}
+  - {t: "An Introduction to Statistical Learning with Python (ISLP)", type: book, url: "https://www.statlearning.com/", free: true, via: community, note: "The usual statistical companion to Géron"}
+  - {t: "Andrew Ng · Machine Learning Specialization", type: course, url: "https://www.coursera.org/specializations/machine-learning-introduction", free: true, note: "Audit for free"}
+  - {t: "Stanford CS229", type: course, url: "https://cs229.stanford.edu/", free: true, via: official}
+  - {t: "scikit-learn user guide", type: docs, url: "https://scikit-learn.org/stable/user_guide.html", free: true}
+  - {t: "The Hundred-Page Machine Learning Book (Burkov)", type: book, url: "https://themlbook.com/", free: false}
+
+modules:
+  - title: The ML workflow
+    lessons:
+      - {t: "Framing a problem and choosing a metric", d: interview}
+      - {t: "Train, validation and test splits", d: core}
+      - {t: "Cross-validation (k-fold, stratified, time series)", d: interview, anim: true}
+      - {t: "Data leakage and how to catch it", d: interview}
+      - {t: "Baselines first", d: core}
+    resources:
+      - {t: "Géron · chapter 2 (end-to-end project)", type: book, url: "https://homl.info", free: false}
+      - {t: "Kaggle Learn · Intro and Intermediate ML", type: course, url: "https://www.kaggle.com/learn", free: true}
+
+  - title: Linear models
+    lessons:
+      - {t: "Linear regression and its assumptions", d: core}
+      - {t: "Logistic regression", d: interview}
+      - {t: "Regularisation (ridge, lasso, elastic net)", d: interview, anim: true}
+      - {t: "Bias–variance trade-off", d: interview, anim: true}
+    practice:
+      - {t: "Implement logistic regression with gradient descent and match sklearn", url: ""}
+      - {t: "Deep-ML · regression and classification problems", url: "https://www.deep-ml.com/"}
+
+  - title: Trees and ensembles
+    lessons:
+      - {t: "Decision trees and impurity measures", d: interview, anim: true}
+      - {t: "Bagging and random forests", d: interview}
+      - {t: "Gradient boosting (XGBoost, LightGBM, CatBoost)", d: interview}
+      - {t: "Feature importance and SHAP", d: core}
+    resources:
+      - {t: "StatQuest · trees and boosting playlists", type: video, url: "https://www.youtube.com/@statquest", free: true, via: community}
+      - {t: "XGBoost docs", type: docs, url: "https://xgboost.readthedocs.io/", free: true}
+      - {t: "SHAP docs", type: docs, url: "https://shap.readthedocs.io/", free: true}
+
+  - title: Other classics
+    lessons:
+      - {t: "k-nearest neighbours", d: core}
+      - {t: "Support vector machines and margins", d: interview, anim: true}
+      - {t: "Naive Bayes", d: core}
+      - {t: "k-means and DBSCAN", d: interview, anim: true}
+      - {t: "Dimensionality reduction (PCA, UMAP)", d: core}
+    resources:
+      - {t: "ISLP · chapters 9 and 12", type: book, url: "https://www.statlearning.com/", free: true}
+    practice:
+      - {t: "Implement k-means in NumPy in under 20 minutes", url: ""}
+
+  - title: Evaluation in depth
+    lessons:
+      - {t: "Precision, recall, F1, ROC-AUC vs PR-AUC", d: interview}
+      - {t: "Class imbalance (weights, resampling, thresholds)", d: interview}
+      - {t: "Calibration", d: research}
+      - {t: "Error analysis and slicing", d: core}
+    practice:
+      - {t: "Enter one Kaggle Playground competition and write up your error analysis", url: "https://www.kaggle.com/competitions"}
+
+  - title: From-scratch implementations
+    lessons:
+      - {t: "Build a mini scikit-learn (fit/predict API) for 5 models", d: core}
+    resources:
+      - {t: "ML-From-Scratch (Erik Linder-Norén)", type: repo, url: "https://github.com/eriklindernoren/ML-From-Scratch", free: true, via: community}

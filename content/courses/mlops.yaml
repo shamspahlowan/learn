@@ -1,0 +1,67 @@
+slug: mlops
+title: MLOps
+category: systems
+hours: 40
+prereqs: [classical-ml, python-for-ml]
+paths: [ml-engineer, data-engineering]
+summary: Taking a model from notebook to a reproducible, tested, deployed and monitored service.
+outcomes:
+  - Track experiments and version data and models
+  - Ship a model behind an API in a container with CI
+  - Monitor drift and decide when to retrain
+
+course_resources:
+  - {t: "MLOps Zoomcamp (DataTalks.Club) · self-paced", type: course, url: "https://github.com/DataTalksClub/mlops-zoomcamp", free: true, via: community}
+  - {t: "Made With ML (Goku Mohandas)", type: course, url: "https://madewithml.com/", free: true, via: community}
+  - {t: "Designing Machine Learning Systems (Chip Huyen)", type: book, url: "https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/", free: false, via: community}
+  - {t: "Stanford CS329S · ML systems design", type: course, url: "https://stanford-cs329s.github.io/", free: true}
+  - {t: "Full Stack Deep Learning 2022", type: course, url: "https://fullstackdeeplearning.com/course/2022/", free: true}
+  - {t: "Google · Rules of Machine Learning", type: article, url: "https://developers.google.com/machine-learning/guides/rules-of-ml", free: true}
+
+modules:
+  - title: Reproducibility
+    lessons:
+      - {t: "Experiment tracking with MLflow or W&B", d: core}
+      - {t: "Data and model versioning (DVC)", d: core}
+      - {t: "Deterministic training and environment pinning", d: core}
+    resources:
+      - {t: "MLflow docs", type: docs, url: "https://mlflow.org/docs/latest/", free: true}
+      - {t: "DVC docs", type: docs, url: "https://dvc.org/doc", free: true}
+
+  - title: Packaging and serving
+    lessons:
+      - {t: "Model APIs with FastAPI", d: core}
+      - {t: "Docker for ML", d: core}
+      - {t: "Batch vs online inference", d: interview, anim: true}
+      - {t: "Model servers (BentoML, Ray Serve, Triton) overview", d: core}
+    resources:
+      - {t: "FastAPI tutorial", type: docs, url: "https://fastapi.tiangolo.com/tutorial/", free: true}
+      - {t: "Docker get started", type: docs, url: "https://docs.docker.com/get-started/", free: true}
+      - {t: "Ray docs", type: docs, url: "https://docs.ray.io/", free: true}
+
+  - title: Testing and CI/CD
+    lessons:
+      - {t: "Testing data, code and models", d: core}
+      - {t: "GitHub Actions for ML with a metric gate", d: core}
+      - {t: "Shadow, canary and A/B deployments", d: interview}
+    resources:
+      - {t: "Made With ML · testing", type: course, url: "https://madewithml.com/", free: true}
+      - {t: "GitHub Actions docs", type: docs, url: "https://docs.github.com/en/actions", free: true}
+
+  - title: Monitoring
+    lessons:
+      - {t: "Data drift vs concept drift", d: interview, anim: true}
+      - {t: "Monitoring with Evidently", d: core}
+      - {t: "Retraining triggers and feedback loops", d: interview}
+    resources:
+      - {t: "Evidently docs", type: docs, url: "https://docs.evidentlyai.com/", free: true}
+      - {t: "Hidden Technical Debt in Machine Learning Systems", type: paper, url: "https://papers.nips.cc/paper/5656-hidden-technical-debt-in-machine-learning-systems", free: true}
+
+  - title: Infrastructure
+    lessons:
+      - {t: "Feature stores", d: core}
+      - {t: "Orchestration for ML pipelines", d: core}
+      - {t: "Kubernetes basics for ML engineers", d: core}
+    resources:
+      - {t: "Kubernetes basics", type: docs, url: "https://kubernetes.io/docs/tutorials/kubernetes-basics/", free: true}
+      - {t: "awesome-mlops", type: repo, url: "https://github.com/visenger/awesome-mlops", free: true}

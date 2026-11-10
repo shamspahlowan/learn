@@ -1,0 +1,39 @@
+slug: manim-explainers
+title: Making explainers with Manim
+category: tools
+hours: 16
+prereqs: [python-for-ml]
+paths: []
+summary: Learn enough Manim to animate your own lessons, plus when an interactive widget beats a video.
+outcomes:
+  - Animate a vector, a transformation and a graph in Manim
+  - Theme Manim to match the site and render clips small enough for GitHub Pages
+  - Choose between a Manim clip, an interactive widget and a screen recording
+
+course_resources:
+  - {t: "Manim Community docs and tutorials", type: docs, url: "https://docs.manim.community/", free: true, via: official}
+  - {t: "Theorem of Beethoven · Manim tutorials", type: video, url: "https://www.youtube.com/@TheoremofBeethoven", free: true, via: community}
+  - {t: "Manim Slides · turn scenes into presentations", type: tool, url: "https://manim-slides.eertmans.be/", free: true}
+  - {t: "Mafs · interactive math components for the web", type: tool, url: "https://mafs.dev/", free: true}
+  - {t: "Motion Canvas · code animations in TypeScript", type: tool, url: "https://motioncanvas.io/", free: true}
+
+modules:
+  - title: First scenes
+    lessons:
+      - {t: "Installing Manim Community and rendering a scene", d: core}
+      - {t: "Mobjects, animations and the Scene lifecycle", d: core}
+      - {t: "Text and LaTeX", d: core}
+  - title: Math animations
+    lessons:
+      - {t: "NumberPlane, vectors and linear transformations", d: core}
+      - {t: "Graphs and functions", d: core}
+      - {t: "ValueTrackers and updaters", d: core}
+  - title: Production
+    lessons:
+      - {t: "A theme file that matches the site", d: core}
+      - {t: "Render settings, file size and looping clips", d: core}
+      - {t: "Rendering in GitHub Actions with caching", d: core}
+  - title: Choosing the medium
+    lessons:
+      - {t: "Video vs interactive widget vs screen recording", d: core}
+      - {t: "Interactive math with Mafs inside a lesson", d: core}

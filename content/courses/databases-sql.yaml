@@ -1,0 +1,61 @@
+slug: databases-sql
+title: Databases and SQL
+category: cs
+hours: 28
+prereqs: []
+paths: [ml-engineer, data-engineering]
+summary: SQL fluency for interviews and analytics, plus enough database internals to know why queries are slow.
+outcomes:
+  - Write window functions, CTEs and joins without hesitation
+  - Read a query plan and add the right index
+  - Model a schema for an application and for analytics
+
+course_resources:
+  - {t: "CS50's Introduction to Databases with SQL", type: course, url: "https://cs50.harvard.edu/sql/", free: true, via: official, note: "You already have a CS50_SQL_Lessons folder: continue it here"}
+  - {t: "SQLBolt · interactive lessons", type: exercises, url: "https://sqlbolt.com/", free: true}
+  - {t: "Use The Index, Luke", type: book, url: "https://use-the-index-luke.com/", free: true, via: community}
+  - {t: "CMU 15-445 Database Systems", type: course, url: "https://15445.courses.cs.cmu.edu/", free: true, via: official}
+  - {t: "PostgreSQL documentation", type: docs, url: "https://www.postgresql.org/docs/", free: true}
+
+modules:
+  - title: SQL fundamentals
+    lessons:
+      - {t: "SELECT, filtering and sorting", d: core}
+      - {t: "Joins (inner, left, self, anti)", d: interview, anim: true}
+      - {t: "GROUP BY and HAVING", d: core}
+      - {t: "Subqueries and CTEs", d: core}
+    practice:
+      - {t: "SQLBolt · all lessons", url: "https://sqlbolt.com/"}
+      - {t: "LeetCode SQL 50 · first 25", url: "https://leetcode.com/studyplan/top-sql-50/"}
+
+  - title: Analytical SQL
+    lessons:
+      - {t: "Window functions (ROW_NUMBER, LAG, running totals)", d: interview, anim: true}
+      - {t: "Date handling and cohorts", d: interview}
+      - {t: "Funnels and retention queries", d: interview}
+    practice:
+      - {t: "LeetCode SQL 50 · remaining 25", url: "https://leetcode.com/studyplan/top-sql-50/"}
+
+  - title: Data modelling
+    lessons:
+      - {t: "Normalisation and keys", d: core}
+      - {t: "Modelling for apps vs analytics", d: core}
+      - {t: "Star schemas and slowly changing dimensions", d: interview}
+
+  - title: How databases work
+    lessons:
+      - {t: "Storage, pages and B-trees", d: research, anim: true}
+      - {t: "Indexes and query plans (EXPLAIN)", d: interview}
+      - {t: "Transactions, isolation levels and MVCC", d: interview}
+      - {t: "Row stores vs column stores", d: core}
+    resources:
+      - {t: "CMU 15-445 · lectures", type: course, url: "https://15445.courses.cs.cmu.edu/", free: true}
+      - {t: "Use The Index, Luke", type: book, url: "https://use-the-index-luke.com/", free: true}
+
+  - title: Databases for ML
+    lessons:
+      - {t: "pgvector and vector search in Postgres", d: core}
+      - {t: "DuckDB for local analytics", d: core}
+    resources:
+      - {t: "pgvector", type: repo, url: "https://github.com/pgvector/pgvector", free: true}
+      - {t: "DuckDB docs", type: docs, url: "https://duckdb.org/docs/", free: true}

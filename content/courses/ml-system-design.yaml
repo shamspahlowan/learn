@@ -1,0 +1,44 @@
+slug: ml-system-design
+title: ML system design
+category: systems
+hours: 30
+prereqs: [mlops, system-design]
+paths: [ml-engineer]
+summary: The FAANG ML design round, learned from hundreds of real company write-ups.
+outcomes:
+  - Drive an ML design question through 7 steps in 45 minutes
+  - Choose metrics, data, models and serving for a real product problem
+  - Discuss monitoring, feedback loops and failure modes unprompted
+
+course_resources:
+  - {t: "Evidently · ML system design database (650 case studies from 100+ companies)", type: article, url: "https://www.evidentlyai.com/ml-system-design", free: true, via: official}
+  - {t: "A curated list of ML system design case studies (300+)", type: repo, url: "https://github.com/Engineer1999/A-Curated-List-of-ML-System-Design-Case-Studies", free: true, via: community}
+  - {t: "AI/ML Interviews (alirezadir) · design section", type: repo, url: "https://github.com/alirezadir/AIMLInterviews", free: true, via: community}
+  - {t: "applied-ml (Eugene Yan) · papers and write-ups by company", type: repo, url: "https://github.com/eugeneyan/applied-ml", free: true, via: community}
+  - {t: "ML Interviews book (Chip Huyen)", type: book, url: "https://huyenchip.com/ml-interviews-book/", free: true}
+  - {t: "Machine Learning System Design Interview (Aminian, Xu)", type: book, url: "https://bytebytego.com/", free: false}
+
+modules:
+  - title: The framework
+    lessons:
+      - {t: "Clarifying the business and ML objective", d: interview}
+      - {t: "Offline, online and guardrail metrics", d: interview}
+      - {t: "Data, labels and sampling", d: interview}
+      - {t: "Baseline to strong model", d: interview}
+      - {t: "Serving, monitoring and iteration", d: interview}
+
+  - title: Classic cases
+    lessons:
+      - {t: "News feed ranking", d: interview, anim: true}
+      - {t: "Search ranking", d: interview}
+      - {t: "Fraud detection for a mobile wallet", d: interview}
+      - {t: "Ads click-through prediction", d: interview}
+      - {t: "Content moderation", d: interview}
+      - {t: "RAG assistant for company documents", d: interview}
+    practice:
+      - {t: "Read 2 real case studies per classic case from the Evidently database before attempting it", url: "https://www.evidentlyai.com/ml-system-design"}
+
+  - title: Practice and polish
+    lessons:
+      - {t: "Mock design interviews and self-review", d: interview}
+      - {t: "Writing a one-page design doc", d: core}

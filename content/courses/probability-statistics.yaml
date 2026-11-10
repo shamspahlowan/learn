@@ -1,0 +1,79 @@
+slug: probability-statistics
+title: Probability and statistics
+category: math
+hours: 42
+prereqs: [calculus-optimization]
+paths: [ml-engineer, ml-research, data-engineering]
+summary: Distributions, estimation, testing and Bayesian thinking, the way models and A/B tests actually use them.
+outcomes:
+  - Derive MLE and MAP for common models
+  - Explain bias, variance and the bias–variance trade-off formally
+  - Design and analyse an A/B test, including power and pitfalls
+  - Reason with Bayes' theorem under interview pressure
+
+course_resources:
+  - {t: "Harvard Stat 110 (Blitzstein) · lectures and book", type: course, url: "https://projects.iq.harvard.edu/stat110/home", free: true, via: community}
+  - {t: "Seeing Theory · visual probability", type: tool, url: "https://seeing-theory.brown.edu/", free: true}
+  - {t: "StatQuest", type: video, url: "https://www.youtube.com/@statquest", free: true, via: community}
+  - {t: "CS229 probability review notes", type: article, url: "https://cs229.stanford.edu/section/cs229-prob.pdf", free: true}
+  - {t: "Khan Academy · Statistics and probability", type: course, url: "https://www.khanacademy.org/math/statistics-probability", free: true, via: community}
+
+modules:
+  - title: Probability foundations
+    lessons:
+      - {t: "Sample spaces, events and conditional probability", d: core}
+      - {t: "Bayes' theorem, with a medical-test example", d: interview, anim: true}
+      - {t: "Independence and conditional independence", d: core}
+      - {t: "Random variables, expectation and variance", d: interview}
+      - {t: "Linearity of expectation tricks", d: interview}
+    resources:
+      - {t: "Stat 110 · lectures 1–10", type: course, url: "https://projects.iq.harvard.edu/stat110/home", free: true}
+      - {t: "Seeing Theory · chapters 1–3", type: tool, url: "https://seeing-theory.brown.edu/", free: true}
+    practice:
+      - {t: "50 probability interview questions: work the classic ones (coins, dice, Monty Hall) out loud", url: ""}
+
+  - title: Distributions
+    lessons:
+      - {t: "Bernoulli, binomial, Poisson, geometric", d: core}
+      - {t: "Uniform, exponential, normal", d: core, anim: true}
+      - {t: "Multivariate Gaussian and covariance", d: interview, anim: true}
+      - {t: "Law of large numbers and central limit theorem", d: interview, anim: true}
+      - {t: "Exponential family (overview)", d: research}
+    resources:
+      - {t: "MML book · chapter 6", type: book, url: "https://mml-book.github.io/", free: true}
+      - {t: "StatQuest · distributions playlist", type: video, url: "https://www.youtube.com/@statquest", free: true}
+
+  - title: Estimation
+    lessons:
+      - {t: "Maximum likelihood estimation", d: interview}
+      - {t: "MAP estimation and priors as regularisers", d: interview}
+      - {t: "Bias, variance and MSE of estimators", d: interview}
+      - {t: "Bootstrap and confidence intervals", d: core, anim: true}
+    resources:
+      - {t: "ISLP · chapters 2 and 5", type: book, url: "https://www.statlearning.com/", free: true}
+      - {t: "Think Stats (Downey) · free online", type: book, url: "https://allendowney.github.io/ThinkStats/", free: true}
+    practice:
+      - {t: "Derive the MLE of a Gaussian's mean and variance, then confirm in NumPy", url: ""}
+
+  - title: Hypothesis testing and experiments
+    lessons:
+      - {t: "Null hypotheses, p-values and what they are not", d: interview}
+      - {t: "t-tests, chi-square and permutation tests", d: core}
+      - {t: "Power, sample size and minimum detectable effect", d: interview}
+      - {t: "A/B testing pitfalls (peeking, multiple comparisons, novelty)", d: interview}
+    resources:
+      - {t: "Trustworthy Online Controlled Experiments (Kohavi, Tang, Xu)", type: book, url: "", free: false, note: "The A/B testing reference used at big tech"}
+      - {t: "StatQuest · hypothesis testing", type: video, url: "https://www.youtube.com/@statquest", free: true}
+    practice:
+      - {t: "Simulate an A/B test with peeking and watch the false-positive rate climb", url: ""}
+
+  - title: Bayesian thinking
+    lessons:
+      - {t: "Priors, posteriors and conjugacy", d: core, anim: true}
+      - {t: "Bayesian vs frequentist, in practice", d: interview}
+      - {t: "MCMC intuition", d: research}
+      - {t: "Bayesian models in ML (naive Bayes, Gaussian processes overview)", d: research}
+    resources:
+      - {t: "Think Bayes 2 (Downey) · free online", type: book, url: "https://allendowney.github.io/ThinkBayes2/", free: true}
+      - {t: "Statistical Rethinking (McElreath) · lectures", type: course, url: "https://xcelab.net/rm/", free: true, via: community}
+      - {t: "Probabilistic Machine Learning (Murphy) · free drafts", type: book, url: "https://probml.github.io/pml-book/", free: true}

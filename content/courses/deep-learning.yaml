@@ -1,0 +1,93 @@
+slug: deep-learning
+title: Deep learning
+category: ml
+hours: 60
+prereqs: [classical-ml, calculus-optimization]
+paths: [ml-engineer, ml-research]
+summary: Backprop by hand, then PyTorch, training dynamics, architectures and the craft of making models train.
+outcomes:
+  - Build and train networks in PyTorch from a blank file
+  - Diagnose a training run from its curves
+  - Explain CNNs, RNNs and transformers at interview depth
+  - Read and reimplement a small paper
+
+course_resources:
+  - {t: "Karpathy · Neural Networks: Zero to Hero", type: video, url: "https://karpathy.ai/zero-to-hero.html", free: true, via: community, note: "Most consistently recommended; builds everything from scratch"}
+  - {t: "fast.ai · Practical Deep Learning for Coders", type: course, url: "https://course.fast.ai/", free: true, via: community, note: "Top-down, code-first complement to Karpathy"}
+  - {t: "Understanding Deep Learning (Prince) · free PDF", type: book, url: "https://udlbook.github.io/udlbook/", free: true, via: community, note: "Clear modern theory with notebooks"}
+  - {t: "Dive into Deep Learning", type: book, url: "https://d2l.ai/", free: true}
+  - {t: "Deep Learning (Goodfellow, Bengio, Courville)", type: book, url: "https://www.deeplearningbook.org/", free: true, note: "Older but the reference for theory chapters"}
+  - {t: "PyTorch tutorials", type: docs, url: "https://pytorch.org/tutorials/", free: true}
+
+modules:
+  - title: Neural network foundations
+    lessons:
+      - {t: "Neurons, activations and the MLP", d: core, anim: true}
+      - {t: "Backpropagation by hand", d: interview, anim: true}
+      - {t: "Building micrograd", d: core}
+      - {t: "Loss functions and output layers", d: interview}
+    resources:
+      - {t: "Karpathy · micrograd video", type: video, url: "https://karpathy.ai/zero-to-hero.html", free: true}
+      - {t: "UDL · chapters 3–7", type: book, url: "https://udlbook.github.io/udlbook/", free: true}
+
+  - title: PyTorch fluency
+    lessons:
+      - {t: "Tensors, autograd and devices", d: core}
+      - {t: "Dataset, DataLoader and the training loop", d: core}
+      - {t: "Checkpointing, mixed precision and reproducibility", d: core}
+    resources:
+      - {t: "PyTorch · Learn the basics", type: docs, url: "https://pytorch.org/tutorials/beginner/basics/intro.html", free: true}
+    practice:
+      - {t: "Tensor Puzzles", url: "https://github.com/srush/Tensor-Puzzles"}
+      - {t: "Write a training loop from memory on Fashion-MNIST", url: ""}
+
+  - title: Making networks train
+    lessons:
+      - {t: "Initialisation and vanishing or exploding gradients", d: interview, anim: true}
+      - {t: "BatchNorm vs LayerNorm", d: interview}
+      - {t: "Dropout, weight decay and data augmentation", d: interview}
+      - {t: "Reading loss curves and debugging training", d: core}
+      - {t: "Hyperparameter tuning strategy", d: core}
+    resources:
+      - {t: "A Recipe for Training Neural Networks (Karpathy)", type: article, url: "https://karpathy.github.io/2019/04/25/recipe/", free: true, via: community}
+      - {t: "Google Deep Learning Tuning Playbook", type: docs, url: "https://github.com/google-research/tuning_playbook", free: true}
+      - {t: "Karpathy · makemore parts 2–4", type: video, url: "https://karpathy.ai/zero-to-hero.html", free: true}
+
+  - title: Convolutional networks
+    lessons:
+      - {t: "Convolutions, padding and receptive fields", d: interview, anim: true}
+      - {t: "Classic architectures through ResNet", d: core}
+      - {t: "Transfer learning and fine-tuning", d: core}
+    resources:
+      - {t: "CS231n notes", type: article, url: "https://cs231n.github.io/", free: true}
+      - {t: "fast.ai · lessons 1–3", type: course, url: "https://course.fast.ai/", free: true}
+
+  - title: Sequences and attention
+    lessons:
+      - {t: "RNNs, LSTMs and their limits", d: core}
+      - {t: "Self-attention and multi-head attention", d: interview, anim: true}
+      - {t: "Positional encodings", d: interview}
+      - {t: "Build a GPT from scratch", d: core}
+    resources:
+      - {t: "Karpathy · Let's build GPT", type: video, url: "https://karpathy.ai/zero-to-hero.html", free: true}
+      - {t: "The Annotated Transformer", type: article, url: "https://nlp.seas.harvard.edu/annotated-transformer/", free: true}
+      - {t: "Attention Is All You Need", type: paper, url: "https://arxiv.org/abs/1706.03762", free: true}
+
+  - title: Generative models
+    lessons:
+      - {t: "Autoencoders and VAEs", d: research}
+      - {t: "GANs (overview)", d: research}
+      - {t: "Diffusion models", d: research, anim: true}
+    resources:
+      - {t: "UDL · chapters 14–18", type: book, url: "https://udlbook.github.io/udlbook/", free: true}
+      - {t: "Lilian Weng · What are diffusion models?", type: article, url: "https://lilianweng.github.io/posts/2021-07-11-diffusion-models/", free: true}
+
+  - title: Training at scale
+    lessons:
+      - {t: "GPU memory, batch size and gradient accumulation", d: core}
+      - {t: "Data, tensor and pipeline parallelism", d: research}
+      - {t: "Profiling a training job", d: research}
+    resources:
+      - {t: "Machine Learning Engineering (Stas Bekman)", type: repo, url: "https://github.com/stas00/ml-engineering", free: true, via: community}
+    practice:
+      - {t: "GPU Puzzles", url: "https://github.com/srush/GPU-Puzzles"}

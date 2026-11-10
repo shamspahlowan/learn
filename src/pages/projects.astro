@@ -1,0 +1,66 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../lib/site';
+
+const projects = [
+  {
+    name: 'WheelAssist Vision v2',
+    status: 'In progress',
+    cat: 'ml',
+    what: 'A smart wheelchair app with four control modes. Version 2 replaces the pretrained detector with a YOLO model fine-tuned on my own labelled dataset, quantised to INT8 and run on-device.',
+    stack: 'PyTorch · Ultralytics · Roboflow · TFLite · Flutter · BLE',
+    measure: 'mAP@50 before and after fine-tuning, accuracy lost to quantisation, on-phone latency per frame',
+  },
+  {
+    name: 'Bangla/English document assistant',
+    status: 'Planned',
+    cat: 'research',
+    what: 'A retrieval-augmented assistant over real documents, with hybrid search, re-ranking and citations, and a refusal when the answer isn’t in the documents.',
+    stack: 'Python · FastAPI · pgvector · BM25 + dense + re-ranker · Docker · Flutter',
+    measure: '60-question evaluation set: recall@5, faithfulness, correctness, latency and cost per request',
+  },
+  {
+    name: 'Classic ML, production grade',
+    status: 'Planned',
+    cat: 'data',
+    what: 'A Bangladesh tabular problem taken end to end: EDA, leakage-free cross-validation, SHAP, an API, MLflow tracking, CI with a metric gate and drift monitoring.',
+    stack: 'pandas · scikit-learn · XGBoost · SHAP · MLflow · GitHub Actions · Evidently',
+    measure: 'Cross-validated comparison table, leakage checks, drift report on simulated new data',
+  },
+];
+---
+<Base title="Projects" description="Portfolio projects: finished, measured and deployed.">
+  <div class="wrap page" data-pagefind-body>
+    <header class="head">
+      <span class="eyebrow">Portfolio</span>
+      <h1>Projects</h1>
+      <p class="muted">Each project ends with numbers and a live demo, not just a notebook. Code is on <a class="link-accent" href={SITE.github}>GitHub</a>.</p>
+    </header>
+    <div class="list">
+      {projects.map((p) => (
+        <article class:list={['card', 'proj', `cat-${p.cat}`]}>
+          <div class="top"><h2>{p.name}</h2><span class="pill">{p.status}</span></div>
+          <p>{p.what}</p>
+          <dl>
+            <dt class="eyebrow">Stack</dt><dd>{p.stack}</dd>
+            <dt class="eyebrow">Measured by</dt><dd>{p.measure}</dd>
+          </dl>
+        </article>
+      ))}
+    </div>
+  </div>
+</Base>
+<style>
+  .page { padding-block: 64px; }
+  .head { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+  h1 { font-size: 48px; letter-spacing: -0.045em; }
+  .list { display: flex; flex-direction: column; gap: 16px; }
+  .proj { padding: 24px 26px; display: flex; flex-direction: column; gap: 14px; border-left: 0; }
+  .top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  .top h2 { font-size: 22px; }
+  .proj > p { font-size: 16px; line-height: 1.6; max-width: 70ch; }
+  dl { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 8px 16px; margin: 0; font-size: 14.5px; }
+  dt { padding-top: 3px; }
+  dd { margin: 0; }
+  @media (max-width: 600px) { dl { grid-template-columns: minmax(0, 1fr); } }
+</style>

@@ -1,0 +1,38 @@
+slug: recommender-systems
+title: Recommender systems
+category: ml
+hours: 30
+prereqs: [classical-ml, deep-learning]
+paths: [ml-research]
+summary: Retrieval and ranking systems behind feeds, shops and ads, the most common FAANG ML design topic.
+outcomes:
+  - Design a two-stage retrieval and ranking system
+  - Implement matrix factorisation and a two-tower model
+  - Evaluate offline and online, and explain why they disagree
+
+course_resources:
+  - {t: "Google · Recommendation systems course", type: course, url: "https://developers.google.com/machine-learning/recommendation", free: true, via: official}
+  - {t: "decodingml · Personalized recommender course (H&M, real-time)", type: repo, url: "https://github.com/decodingml/personalized-recommender-course", free: true, via: community}
+  - {t: "Microsoft Recommenders · best-practice notebooks", type: repo, url: "https://github.com/recommenders-team/recommenders", free: true}
+  - {t: "Eugene Yan · RecSys writing", type: article, url: "https://eugeneyan.com/", free: true, via: community}
+
+modules:
+  - title: Foundations
+    lessons:
+      - {t: "Content-based vs collaborative filtering", d: interview}
+      - {t: "Matrix factorisation", d: interview, anim: true}
+      - {t: "Implicit feedback and negative sampling", d: interview}
+
+  - title: Modern architectures
+    lessons:
+      - {t: "Two-tower retrieval", d: interview, anim: true}
+      - {t: "Ranking models and feature crosses", d: core}
+      - {t: "Sequential recommenders", d: research}
+    resources:
+      - {t: "Deep Neural Networks for YouTube Recommendations", type: paper, url: "https://research.google/pubs/deep-neural-networks-for-youtube-recommendations/", free: true}
+
+  - title: Evaluation and serving
+    lessons:
+      - {t: "Offline metrics (NDCG, recall@k)", d: interview}
+      - {t: "A/B tests and feedback loops", d: interview}
+      - {t: "Approximate nearest neighbour search at serving time", d: core}

@@ -1,0 +1,51 @@
+slug: research-skills
+title: Research skills
+category: research
+hours: 25
+prereqs: [deep-learning]
+paths: [ml-research]
+summary: Finding, reading, reproducing and writing ML research.
+outcomes:
+  - Read a paper in three passes and summarise it in a paragraph
+  - Reproduce a small paper's main result
+  - Write a clear technical report or workshop paper
+
+course_resources:
+  - {t: "How to Read a Paper (S. Keshav)", type: article, url: "https://web.stanford.edu/class/ee384m/Handouts/HowtoReadPaper.pdf", free: true, via: community}
+  - {t: "An Opinionated Guide to ML Research (John Schulman)", type: article, url: "http://joschu.net/blog/opinionated-guide-ml-research.html", free: true, via: community}
+  - {t: "How to write a great research paper (Simon Peyton Jones)", type: video, url: "https://www.microsoft.com/en-us/research/academic-program/write-great-research-paper/", free: true}
+
+modules:
+  - title: Finding papers
+    lessons:
+      - {t: "arXiv, Hugging Face Papers and alphaXiv", d: core}
+      - {t: "Following citations with Semantic Scholar and Connected Papers", d: core}
+      - {t: "Life after Papers with Code (shut down in July 2025)", d: core}
+    resources:
+      - {t: "Hugging Face Papers", type: tool, url: "https://huggingface.co/papers", free: true}
+      - {t: "alphaXiv · discuss arXiv papers", type: tool, url: "https://www.alphaxiv.org/", free: true}
+      - {t: "Semantic Scholar", type: tool, url: "https://www.semanticscholar.org/", free: true}
+      - {t: "Connected Papers", type: tool, url: "https://www.connectedpapers.com/", free: true}
+
+  - title: Reading papers
+    lessons:
+      - {t: "The three-pass method", d: core}
+      - {t: "Reading for questions, not front to back", d: core}
+      - {t: "Spotting weak baselines and unfair comparisons", d: research}
+
+  - title: Reproducing papers
+    lessons:
+      - {t: "Start with the smallest model and simplest dataset", d: research}
+      - {t: "Details papers leave out (warmup, clipping, schedules)", d: research}
+      - {t: "Writing up a reproduction", d: research}
+    resources:
+      - {t: "ML Reproducibility Challenge", type: tool, url: "https://reproml.org/", free: true}
+
+  - title: Doing research
+    lessons:
+      - {t: "Picking problems and running fast experiments", d: research}
+      - {t: "Ablations and statistical care", d: research}
+      - {t: "Writing and figures", d: research}
+    resources:
+      - {t: "Distill · examples of clear research communication", type: article, url: "https://distill.pub/", free: true}
+      - {t: "Lilian Weng's blog", type: article, url: "https://lilianweng.github.io/", free: true}

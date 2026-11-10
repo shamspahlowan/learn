@@ -1,0 +1,57 @@
+slug: computer-vision
+title: Computer vision
+category: ml
+hours: 40
+prereqs: [deep-learning]
+paths: [ml-research]
+summary: From convolutions to detection, segmentation and vision transformers, with on-device deployment as your edge.
+outcomes:
+  - Train and evaluate a detector on your own data
+  - Explain ViT and CLIP at interview depth
+  - Deploy a quantised vision model to a phone
+
+course_resources:
+  - {t: "Stanford CS231n (Spring 2026)", type: course, url: "https://cs231n.stanford.edu/", free: true, via: official, note: "Most consistently recommended CV course"}
+  - {t: "CS231n course notes", type: article, url: "https://cs231n.github.io/", free: true}
+  - {t: "Hugging Face Computer Vision Course", type: course, url: "https://huggingface.co/learn/computer-vision-course", free: true, note: "Covers ViT, CLIP and multimodal models"}
+  - {t: "Ultralytics YOLO docs", type: docs, url: "https://docs.ultralytics.com/", free: true}
+
+modules:
+  - title: Images and classic vision
+    lessons:
+      - {t: "Images as tensors, colour spaces", d: core}
+      - {t: "Filters, edges and feature descriptors", d: core, anim: true}
+    resources:
+      - {t: "OpenCV docs", type: docs, url: "https://docs.opencv.org/", free: true}
+
+  - title: Classification
+    lessons:
+      - {t: "CNN architectures recap", d: core}
+      - {t: "Augmentation and transfer learning", d: core}
+      - {t: "Vision transformers", d: interview, anim: true}
+    resources:
+      - {t: "An Image is Worth 16x16 Words (ViT)", type: paper, url: "https://arxiv.org/abs/2010.11929", free: true}
+
+  - title: Detection and segmentation
+    lessons:
+      - {t: "Bounding boxes, IoU and NMS", d: interview, anim: true}
+      - {t: "One-stage vs two-stage detectors", d: interview}
+      - {t: "mAP and detection evaluation", d: interview}
+      - {t: "Semantic, instance and promptable segmentation", d: core}
+    practice:
+      - {t: "Fine-tune YOLO on your WheelAssist dataset and report mAP@50", url: "https://docs.ultralytics.com/"}
+
+  - title: Multimodal
+    lessons:
+      - {t: "CLIP and contrastive image–text learning", d: research, anim: true}
+      - {t: "Vision-language models", d: research}
+    resources:
+      - {t: "CLIP paper", type: paper, url: "https://arxiv.org/abs/2103.00020", free: true}
+
+  - title: Deployment
+    lessons:
+      - {t: "Quantisation and pruning", d: core}
+      - {t: "TFLite / LiteRT and Core ML", d: core}
+      - {t: "Measuring on-device latency", d: core}
+    resources:
+      - {t: "LiteRT post-training quantisation", type: docs, url: "https://ai.google.dev/edge/litert/models/post_training_quantization", free: true}

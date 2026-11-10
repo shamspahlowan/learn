@@ -1,0 +1,41 @@
+slug: reinforcement-learning
+title: Reinforcement learning (elective)
+category: ml
+hours: 35
+prereqs: [deep-learning, probability-statistics]
+paths: [ml-research]
+summary: From bandits to policy gradients, enough to understand RLHF and read RL papers.
+outcomes:
+  - Explain MDPs, value functions and policy gradients
+  - Implement DQN and PPO on a small environment
+  - Follow how RL is used to align LLMs
+
+course_resources:
+  - {t: "Reinforcement Learning: An Introduction (Sutton, Barto) · free", type: book, url: "http://incompleteideas.net/book/the-book-2nd.html", free: true, via: official}
+  - {t: "OpenAI Spinning Up", type: docs, url: "https://spinningup.openai.com/", free: true, via: community}
+  - {t: "Hugging Face Deep RL Course", type: course, url: "https://huggingface.co/learn/deep-rl-course", free: true}
+  - {t: "David Silver · RL lectures", type: video, url: "https://www.davidsilver.uk/teaching/", free: true}
+
+modules:
+  - title: Foundations
+    lessons:
+      - {t: "Multi-armed bandits and exploration", d: core, anim: true}
+      - {t: "Markov decision processes", d: core}
+      - {t: "Value functions and the Bellman equation", d: research, anim: true}
+
+  - title: Value-based methods
+    lessons:
+      - {t: "Q-learning", d: core}
+      - {t: "DQN and its tricks", d: research}
+
+  - title: Policy methods
+    lessons:
+      - {t: "Policy gradients and REINFORCE", d: research}
+      - {t: "Actor–critic and PPO", d: research}
+
+  - title: RL for language models
+    lessons:
+      - {t: "RLHF pipeline", d: research}
+      - {t: "DPO and direct preference methods", d: research}
+    resources:
+      - {t: "RLHF Book (Nathan Lambert)", type: book, url: "https://rlhfbook.com/", free: true}

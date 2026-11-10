@@ -1,0 +1,108 @@
+slug: linear-algebra
+title: Linear algebra for machine learning
+category: math
+hours: 38
+prereqs: []
+paths: [ml-engineer, ml-research]
+summary: From vectors to SVD to the matrix calculus behind backprop, deep enough to derive things in an interview and read papers after.
+outcomes:
+  - Read any matrix as a transformation of space and say what it does to a basis
+  - Derive PCA from the SVD on a whiteboard
+  - Write backprop for a layer in matrix form with the shapes right
+  - Spot an ill-conditioned problem before it ruins training
+  - Explain attention, embeddings and LoRA as linear algebra
+  - Follow the maths in a paper's method section
+
+course_resources:
+  - {t: "3Blue1Brown · Essence of linear algebra", type: video, url: "https://www.3blue1brown.com/topics/linear-algebra", free: true, via: community, note: "The most recommended starting point on Reddit for intuition"}
+  - {t: "Mathematics for Machine Learning (Deisenroth, Faisal, Ong)", type: book, url: "https://mml-book.github.io/", free: true, via: community, note: "Chapters 2–4 are this course's spine"}
+  - {t: "MIT 18.06 Linear Algebra (Gilbert Strang)", type: course, url: "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/", free: true, via: official}
+  - {t: "MIT 18.065 Matrix methods in data analysis and ML (Strang)", type: course, url: "https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/", free: true, via: official}
+  - {t: "Linear Algebra Done Right, 4th ed. (Axler)", type: book, url: "https://linear.axler.net/", free: true, via: community, note: "Proof-based; read later for research depth"}
+
+modules:
+  - title: Vectors and spaces
+    lessons:
+      - {t: "Vectors and norms (L1, L2, L∞)", d: core, anim: true}
+      - {t: "Dot product and cosine similarity", d: interview, anim: true}
+      - {t: "Span, linear independence and basis", d: core, anim: true}
+      - {t: "Subspaces and the four fundamental spaces", d: research}
+      - {t: "Practice: a tiny embedding search in NumPy", d: core}
+    resources:
+      - {t: "3Blue1Brown · chapters 1–2 and 9", type: video, url: "https://www.3blue1brown.com/topics/linear-algebra", free: true}
+      - {t: "MML book · chapter 2 and §3.1–3.3", type: book, url: "https://mml-book.github.io/", free: true}
+    practice:
+      - {t: "numpy-100 · exercises 1–30", url: "https://github.com/rougier/numpy-100"}
+      - {t: "Deep-ML · linear algebra problems", url: "https://www.deep-ml.com/"}
+
+  - title: Matrices as transformations
+    lessons:
+      - {t: "Matrix–vector and matrix–matrix multiplication", d: core, anim: true}
+      - {t: "Rank and null space", d: interview, anim: true}
+      - {t: "Inverses and determinants as volume", d: core, anim: true}
+      - {t: "Solving Ax = b and when it fails", d: core}
+      - {t: "Least squares and the normal equations", d: interview, anim: true}
+      - {t: "Projections and orthogonality", d: interview, anim: true}
+    resources:
+      - {t: "3Blue1Brown · chapters 3–8", type: video, url: "https://www.3blue1brown.com/topics/linear-algebra", free: true}
+      - {t: "Strang 18.06 · lectures 1–16", type: course, url: "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/", free: true}
+    practice:
+      - {t: "Implement least-squares linear regression three ways: normal equations, QR, np.linalg.lstsq", url: ""}
+      - {t: "Tensor Puzzles · puzzles 1–10", url: "https://github.com/srush/Tensor-Puzzles"}
+
+  - title: Eigen and decompositions
+    lessons:
+      - {t: "Eigenvalues and eigenvectors, geometrically", d: interview, anim: true}
+      - {t: "Diagonalisation and change of basis", d: core, anim: true}
+      - {t: "Symmetric matrices and the spectral theorem", d: interview}
+      - {t: "Positive (semi)definite matrices", d: interview}
+      - {t: "Singular value decomposition", d: interview, anim: true}
+      - {t: "PCA via SVD", d: interview, anim: true}
+      - {t: "Low-rank approximation and why LoRA works", d: research}
+    resources:
+      - {t: "3Blue1Brown · chapters 13–14", type: video, url: "https://www.3blue1brown.com/topics/linear-algebra", free: true}
+      - {t: "MML book · chapter 4 (matrix decompositions) and chapter 10 (PCA)", type: book, url: "https://mml-book.github.io/", free: true}
+      - {t: "Strang 18.065 · SVD and PCA lectures", type: course, url: "https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/", free: true}
+    practice:
+      - {t: "Compress an image with truncated SVD and plot error vs rank", url: ""}
+      - {t: "Implement PCA from scratch and match sklearn.decomposition.PCA", url: ""}
+
+  - title: Matrix calculus and backprop
+    lessons:
+      - {t: "Gradients, Jacobians and Hessians", d: interview}
+      - {t: "The chain rule in matrix form", d: interview, anim: true}
+      - {t: "Deriving backprop for a linear layer and softmax", d: interview}
+      - {t: "Automatic differentiation (forward vs reverse mode)", d: research}
+    resources:
+      - {t: "MIT 18.S096 Matrix calculus for ML and beyond", type: course, url: "https://ocw.mit.edu/courses/18-s096-matrix-calculus-for-machine-learning-and-beyond-january-iap-2023/", free: true, via: official}
+      - {t: "Matrix calculus for ML and beyond (Bright, Edelman, Johnson) · arXiv", type: book, url: "https://arxiv.org/abs/2501.14787", free: true}
+      - {t: "The matrix calculus you need for deep learning (Parr, Howard)", type: article, url: "https://explained.ai/matrix-calculus/", free: true, via: community}
+      - {t: "The Matrix Cookbook", type: docs, url: "https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf", free: true, note: "Reference sheet, not a read-through"}
+    practice:
+      - {t: "Write forward and backward for Linear + ReLU + softmax cross-entropy in NumPy, then gradient-check it", url: ""}
+
+  - title: Numerical linear algebra
+    lessons:
+      - {t: "Floating point and numerical stability", d: research}
+      - {t: "Condition numbers", d: research, anim: true}
+      - {t: "QR, Cholesky and LU in practice", d: research}
+      - {t: "Sparse matrices", d: core}
+      - {t: "How GPUs multiply matrices (tiling, memory)", d: research}
+    resources:
+      - {t: "fast.ai · Computational linear algebra", type: course, url: "https://github.com/fastai/numerical-linear-algebra", free: true}
+      - {t: "Numerical Linear Algebra (Trefethen, Bau)", type: book, url: "", free: false, note: "Classic reference"}
+    practice:
+      - {t: "GPU Puzzles · first 8", url: "https://github.com/srush/GPU-Puzzles"}
+
+  - title: Linear algebra inside ML
+    lessons:
+      - {t: "Embeddings as vectors in a learned space", d: core, anim: true}
+      - {t: "Attention as matrix operations", d: interview, anim: true}
+      - {t: "Covariance, whitening and Mahalanobis distance", d: core}
+      - {t: "Kernels and the kernel trick", d: research}
+      - {t: "Random projections and Johnson–Lindenstrauss", d: research}
+    resources:
+      - {t: "The Illustrated Transformer (Jay Alammar)", type: article, url: "https://jalammar.github.io/illustrated-transformer/", free: true}
+      - {t: "Strang 18.065 · later lectures", type: course, url: "https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/", free: true}
+    practice:
+      - {t: "Write single-head attention in NumPy with shape assertions", url: ""}

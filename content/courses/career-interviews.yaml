@@ -1,0 +1,33 @@
+slug: career-interviews
+title: Interviews and career
+category: career
+hours: 20
+prereqs: []
+paths: [ml-engineer, data-engineering]
+summary: Portfolio, CV, networking and the behavioural round, carried over from the 90-day sprint.
+outcomes:
+  - Six STAR stories with numbers, ready to tell in 2 minutes each
+  - A portfolio of three finished, measured, deployed projects
+  - A steady habit of reaching out to seniors
+
+course_resources:
+  - {t: "Tech Interview Handbook · behavioural", type: docs, url: "https://www.techinterviewhandbook.org/behavioral-interview/", free: true}
+  - {t: "AI/ML Interviews (alirezadir)", type: repo, url: "https://github.com/alirezadir/AIMLInterviews", free: true, via: community}
+
+modules:
+  - title: Portfolio
+    lessons:
+      - {t: "What makes a project stand out (finished, measured, deployed)", d: core}
+      - {t: "Writing a README that sells the project", d: core}
+  - title: CV and profiles
+    lessons:
+      - {t: "An ML-focused CV with a metric in every bullet", d: core}
+      - {t: "GitHub, Hugging Face, Kaggle and LinkedIn polish", d: core}
+  - title: Behavioural interviews
+    lessons:
+      - {t: "The STAR method", d: interview}
+      - {t: "Your six stories", d: interview}
+  - title: Networking
+    lessons:
+      - {t: "Cold messages that get replies", d: core}
+      - {t: "Communities worth joining", d: core}

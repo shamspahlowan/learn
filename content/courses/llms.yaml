@@ -1,0 +1,92 @@
+slug: llms
+title: LLMs, RAG and agents
+category: ml
+hours: 55
+prereqs: [deep-learning]
+paths: [ml-engineer, ml-research]
+summary: How language models are built, adapted, evaluated and shipped, from tokenisers to agents.
+outcomes:
+  - Explain a transformer LM end to end, including tokenisation and sampling
+  - Build a RAG system and measure it with a real evaluation set
+  - Decide between prompting, RAG and fine-tuning with evidence
+  - Fine-tune a small open model with LoRA
+
+course_resources:
+  - {t: "Stanford CS336 · Language Modeling from Scratch (Spring 2026)", type: course, url: "https://cs336.stanford.edu/", free: true, via: official, note: "Research-depth; five implementation-heavy assignments"}
+  - {t: "Hugging Face LLM Course", type: course, url: "https://huggingface.co/learn/llm-course", free: true, via: official}
+  - {t: "mlabonne/llm-course · roadmaps and notebooks", type: repo, url: "https://github.com/mlabonne/llm-course", free: true, via: community, note: "Very popular; check recent commits, as activity has slowed"}
+  - {t: "Build a Large Language Model from Scratch (Raschka)", type: repo, url: "https://github.com/rasbt/LLMs-from-scratch", free: true, via: community, note: "Code is free; the book is paid"}
+  - {t: "AI Engineering (Chip Huyen)", type: book, url: "https://www.oreilly.com/library/view/ai-engineering/9781098166298/", free: false, via: community}
+  - {t: "LLM Zoomcamp (DataTalks.Club)", type: course, url: "https://github.com/DataTalksClub/llm-zoomcamp", free: true}
+
+modules:
+  - title: How language models work
+    lessons:
+      - {t: "Tokenisation and BPE", d: interview, anim: true}
+      - {t: "The decoder-only transformer", d: interview, anim: true}
+      - {t: "Pretraining objective and scaling laws", d: research}
+      - {t: "Sampling (temperature, top-k, top-p)", d: interview, anim: true}
+      - {t: "KV cache and inference cost", d: interview}
+    resources:
+      - {t: "Karpathy · Let's build the GPT tokenizer", type: video, url: "https://www.youtube.com/watch?v=zduSFxRajkE", free: true}
+      - {t: "nanoGPT", type: repo, url: "https://github.com/karpathy/nanoGPT", free: true}
+      - {t: "CS336 · lectures 1–6", type: course, url: "https://cs336.stanford.edu/", free: true}
+    practice:
+      - {t: "CS336 assignment 1 · build a transformer LM", url: "https://github.com/stanford-cs336"}
+
+  - title: Using LLMs well
+    lessons:
+      - {t: "Prompting fundamentals and structured output", d: core}
+      - {t: "Tool and function calling", d: core}
+      - {t: "Embeddings and semantic search", d: core, anim: true}
+    resources:
+      - {t: "Claude docs · prompt engineering", type: docs, url: "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview", free: true, via: official}
+      - {t: "sentence-transformers", type: docs, url: "https://www.sbert.net/", free: true}
+
+  - title: Retrieval-augmented generation
+    lessons:
+      - {t: "Chunking and indexing", d: core}
+      - {t: "Dense, sparse and hybrid retrieval", d: interview, anim: true}
+      - {t: "Re-ranking", d: core}
+      - {t: "Citations and refusing when context is missing", d: core}
+    resources:
+      - {t: "LLM Zoomcamp · RAG modules", type: course, url: "https://github.com/DataTalksClub/llm-zoomcamp", free: true}
+      - {t: "pgvector", type: repo, url: "https://github.com/pgvector/pgvector", free: true}
+      - {t: "Qdrant docs", type: docs, url: "https://qdrant.tech/documentation/", free: true}
+
+  - title: Evaluation
+    lessons:
+      - {t: "Building an evaluation set", d: interview}
+      - {t: "Retrieval metrics (recall@k, MRR)", d: interview}
+      - {t: "LLM-as-judge and its failure modes", d: core}
+      - {t: "Error analysis for LLM apps", d: core}
+    resources:
+      - {t: "Hamel Husain · Your AI product needs evals", type: article, url: "https://hamel.dev/blog/posts/evals/", free: true, via: community}
+      - {t: "RAGAS docs", type: docs, url: "https://docs.ragas.io/", free: true}
+
+  - title: Adapting models
+    lessons:
+      - {t: "Full fine-tuning vs parameter-efficient methods", d: interview}
+      - {t: "LoRA and QLoRA", d: interview, anim: true}
+      - {t: "Instruction tuning and preference optimisation (RLHF, DPO)", d: research}
+      - {t: "Quantisation", d: core}
+    resources:
+      - {t: "Hugging Face PEFT", type: docs, url: "https://huggingface.co/docs/peft/", free: true}
+      - {t: "Unsloth docs", type: docs, url: "https://docs.unsloth.ai/", free: true}
+      - {t: "RLHF Book (Nathan Lambert)", type: book, url: "https://rlhfbook.com/", free: true}
+
+  - title: Agents
+    lessons:
+      - {t: "Agent loops, tools and planning", d: core}
+      - {t: "When not to build an agent", d: interview}
+      - {t: "Evaluating agents", d: research}
+    resources:
+      - {t: "Anthropic · Building effective agents", type: article, url: "https://www.anthropic.com/engineering/building-effective-agents", free: true, via: official}
+
+  - title: Serving LLMs
+    lessons:
+      - {t: "Batching, latency and throughput", d: core}
+      - {t: "Serving with vLLM", d: core}
+      - {t: "Cost control and caching", d: core}
+    resources:
+      - {t: "vLLM docs", type: docs, url: "https://docs.vllm.ai/", free: true}

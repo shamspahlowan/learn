@@ -1,0 +1,73 @@
+slug: dsa
+title: Data structures and algorithms
+category: cs
+hours: 120
+prereqs: [python-for-ml]
+paths: [ml-engineer, data-engineering]
+summary: The patterns behind FAANG coding rounds, practised daily until they're automatic.
+outcomes:
+  - Solve LeetCode mediums in about 25 minutes while explaining out loud
+  - Recognise which of ~15 patterns a problem belongs to
+  - State time and space complexity for everything you write
+
+course_resources:
+  - {t: "NeetCode 150 roadmap", type: exercises, url: "https://neetcode.io/roadmap", free: true, via: community}
+  - {t: "Tech Interview Handbook", type: docs, url: "https://www.techinterviewhandbook.org/", free: true, via: community}
+  - {t: "Grind 75 (customisable plan)", type: exercises, url: "https://www.techinterviewhandbook.org/grind75", free: true}
+  - {t: "Algorithms (Jeff Erickson) · free book", type: book, url: "https://jeffe.cs.illinois.edu/teaching/algorithms/", free: true}
+  - {t: "MIT 6.006 Introduction to Algorithms", type: course, url: "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/", free: true, via: official}
+  - {t: "VisuAlgo · animated data structures", type: tool, url: "https://visualgo.net/", free: true}
+
+modules:
+  - title: Foundations
+    lessons:
+      - {t: "Big-O, amortised analysis and space complexity", d: interview}
+      - {t: "Arrays and hashing", d: core}
+      - {t: "Two pointers", d: core, anim: true}
+      - {t: "Sliding window", d: core, anim: true}
+      - {t: "Stack and monotonic stack", d: interview}
+      - {t: "Binary search (including on the answer)", d: interview, anim: true}
+    practice:
+      - {t: "NeetCode · Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search", url: "https://neetcode.io/roadmap"}
+
+  - title: Linked structures and trees
+    lessons:
+      - {t: "Linked lists and fast/slow pointers", d: core}
+      - {t: "Binary trees and traversals", d: core, anim: true}
+      - {t: "Binary search trees", d: core}
+      - {t: "Tries", d: interview}
+      - {t: "Heaps and priority queues", d: interview, anim: true}
+    practice:
+      - {t: "NeetCode · Linked List, Trees, Tries, Heap", url: "https://neetcode.io/roadmap"}
+
+  - title: Graphs
+    lessons:
+      - {t: "BFS and DFS", d: core, anim: true}
+      - {t: "Topological sort", d: interview}
+      - {t: "Union-find", d: interview}
+      - {t: "Dijkstra and shortest paths", d: interview, anim: true}
+      - {t: "Minimum spanning trees", d: core}
+    resources:
+      - {t: "CP-Algorithms · graph section", type: docs, url: "https://cp-algorithms.com/", free: true}
+    practice:
+      - {t: "NeetCode · Graphs and Advanced Graphs", url: "https://neetcode.io/roadmap"}
+
+  - title: Dynamic programming and backtracking
+    lessons:
+      - {t: "Recursion and backtracking", d: core}
+      - {t: "1-D dynamic programming", d: interview}
+      - {t: "2-D dynamic programming", d: interview, anim: true}
+      - {t: "Intervals and greedy", d: interview}
+    practice:
+      - {t: "NeetCode · Backtracking, 1-D DP, 2-D DP, Greedy, Intervals", url: "https://neetcode.io/roadmap"}
+
+  - title: Interview execution
+    lessons:
+      - {t: "The 6-step problem-solving script", d: interview}
+      - {t: "Testing your code out loud", d: interview}
+      - {t: "ML coding rounds (k-means, logistic regression, attention in NumPy)", d: interview}
+    resources:
+      - {t: "Tech Interview Handbook · coding interview cheatsheet", type: docs, url: "https://www.techinterviewhandbook.org/coding-interview-cheatsheet/", free: true}
+    practice:
+      - {t: "Deep-ML · ML coding problems", url: "https://www.deep-ml.com/"}
+      - {t: "Pramp · free peer mock interviews", url: "https://www.pramp.com/"}

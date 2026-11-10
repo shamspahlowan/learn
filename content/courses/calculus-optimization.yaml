@@ -1,0 +1,75 @@
+slug: calculus-optimization
+title: Calculus and optimization
+category: math
+hours: 34
+prereqs: [linear-algebra]
+paths: [ml-engineer, ml-research]
+summary: The calculus that training actually uses, then gradient descent and its relatives, then the convex theory researchers lean on.
+outcomes:
+  - Compute gradients of common losses by hand
+  - Explain why momentum and Adam help, with a picture
+  - Choose and tune an optimizer and learning-rate schedule with reasons
+  - Recognise convex problems and use duality at a basic level
+
+course_resources:
+  - {t: "3Blue1Brown · Essence of calculus", type: video, url: "https://www.3blue1brown.com/topics/calculus", free: true, via: community}
+  - {t: "MML book · chapters 5 (vector calculus) and 7 (optimization)", type: book, url: "https://mml-book.github.io/", free: true}
+  - {t: "Convex Optimization (Boyd, Vandenberghe) · free PDF", type: book, url: "https://web.stanford.edu/~boyd/cvxbook/", free: true, via: official}
+  - {t: "Stanford EE364A (Boyd) · lectures and slides", type: course, url: "https://web.stanford.edu/class/ee364a/", free: true, via: official}
+
+modules:
+  - title: Single and multivariable calculus refresher
+    lessons:
+      - {t: "Derivatives as local linear approximations", d: core, anim: true}
+      - {t: "Partial derivatives and the gradient", d: core, anim: true}
+      - {t: "Directional derivatives and level sets", d: interview, anim: true}
+      - {t: "Taylor expansion and why second order matters", d: interview}
+    resources:
+      - {t: "3Blue1Brown · Essence of calculus", type: video, url: "https://www.3blue1brown.com/topics/calculus", free: true}
+      - {t: "Khan Academy · Multivariable calculus", type: course, url: "https://www.khanacademy.org/math/multivariable-calculus", free: true}
+
+  - title: Gradients of ML losses
+    lessons:
+      - {t: "MSE and its gradient", d: interview}
+      - {t: "Sigmoid, softmax and cross-entropy gradients", d: interview}
+      - {t: "Regularisation terms (L1, L2) and subgradients", d: core}
+      - {t: "Gradient checking with finite differences", d: core}
+    resources:
+      - {t: "CS229 lecture notes · supervised learning", type: article, url: "https://cs229.stanford.edu/", free: true}
+    practice:
+      - {t: "Deep-ML · gradient and loss problems", url: "https://www.deep-ml.com/"}
+
+  - title: Gradient descent and its family
+    lessons:
+      - {t: "Batch, stochastic and mini-batch gradient descent", d: core, anim: true}
+      - {t: "Learning rate, divergence and schedules", d: interview, anim: true}
+      - {t: "Momentum and Nesterov", d: interview, anim: true}
+      - {t: "RMSProp, Adam and AdamW", d: interview}
+      - {t: "Warmup, cosine decay and gradient clipping", d: core}
+    resources:
+      - {t: "Why momentum really works (Distill)", type: article, url: "https://distill.pub/2017/momentum/", free: true, via: community}
+      - {t: "An overview of gradient descent optimization algorithms (Ruder)", type: article, url: "https://www.ruder.io/optimizing-gradient-descent/", free: true}
+      - {t: "Google Deep Learning Tuning Playbook", type: docs, url: "https://github.com/google-research/tuning_playbook", free: true}
+    practice:
+      - {t: "Implement SGD, momentum and Adam from scratch; race them on the Rosenbrock function and plot the paths", url: ""}
+
+  - title: Convex optimization
+    lessons:
+      - {t: "Convex sets and functions", d: research, anim: true}
+      - {t: "Optimality conditions and KKT", d: research}
+      - {t: "Lagrangian duality", d: research}
+      - {t: "Why deep learning is non-convex and still works", d: research}
+    resources:
+      - {t: "Boyd · chapters 2–5", type: book, url: "https://web.stanford.edu/~boyd/cvxbook/", free: true}
+      - {t: "EE364A lecture videos", type: video, url: "https://web.stanford.edu/class/ee364a/", free: true}
+      - {t: "CVXPY documentation", type: docs, url: "https://www.cvxpy.org/", free: true}
+    practice:
+      - {t: "Solve an SVM as a QP in CVXPY and compare with sklearn", url: ""}
+
+  - title: Optimization in practice
+    lessons:
+      - {t: "Loss landscapes, saddle points and sharp vs flat minima", d: research, anim: true}
+      - {t: "Second-order methods and why they're rare in deep learning", d: research}
+      - {t: "Constrained problems in ML (projections, penalties)", d: core}
+    resources:
+      - {t: "A Recipe for Training Neural Networks (Karpathy)", type: article, url: "https://karpathy.github.io/2019/04/25/recipe/", free: true}

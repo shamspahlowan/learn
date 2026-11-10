@@ -1,0 +1,205 @@
+---
+import '../styles/global.css';
+import { SITE, url } from '../lib/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+  wide?: boolean;
+}
+const { title, description = SITE.description, noindex = false } = Astro.props;
+const fullTitle = title ? `${title} · ${SITE.name}` : SITE.name;
+const path = Astro.url.pathname;
+const nav = [
+  { href: url('/courses/'), label: 'Courses' },
+  { href: url('/paths/'), label: 'Paths' },
+  { href: url('/writing/'), label: 'Writing' },
+  { href: url('/projects/'), label: 'Projects' },
+  { href: url('/about/'), label: 'About' },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
+    <link rel="alternate" type="application/rss+xml" title={SITE.name} href={url('/rss.xml')} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap" />
+    <script is:inline>
+      try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+    </script>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="top">
+      <nav class="wrap topnav" aria-label="Main">
+        <a href={url('/')} class="brand">
+          <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="7" class="brand-bg"></rect><path d="M7 19 L19 9" class="brand-fg" stroke-width="2" stroke-linecap="round"></path><path d="M13.5 8.5 L19.3 8.7 L19 14.5" class="brand-fg" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          {SITE.name}
+        </a>
+        <div class="links">
+          {nav.map((n) => <a href={n.href} aria-current={path.startsWith(n.href) ? 'page' : undefined}>{n.label}</a>)}
+        </div>
+        <button class="search-btn" type="button" data-open-search aria-label="Search lessons and posts">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <span class="search-label">Search</span>
+          <kbd>⌘K</kbd>
+        </button>
+        <button class="icon-btn" type="button" id="theme-toggle" aria-label="Switch between light and dark theme">
+          <svg class="i-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+          <svg class="i-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+      </nav>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="foot">
+      <div class="wrap foot-in">
+        <span>{SITE.author} · learning ML from Dhaka</span>
+        <span class="foot-links">
+          <a href={SITE.github}>GitHub</a>
+          <a href={SITE.linkedin}>LinkedIn</a>
+          <a href={url('/rss.xml')}>RSS</a>
+        </span>
+      </div>
+    </footer>
+
+    <dialog class="search" id="search" aria-label="Search">
+      <form method="dialog" class="search-box" role="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <label for="search-input" class="sr-only">Search lessons, courses and posts</label>
+        <input id="search-input" type="search" placeholder="Search lessons, courses, posts…" autocomplete="off" />
+        <button class="esc" value="close" aria-label="Close search">esc</button>
+      </form>
+      <ol class="results" id="search-results" aria-live="polite"></ol>
+    </dialog>
+
+    <script>
+      const root = document.documentElement;
+      document.getElementById('theme-toggle')?.addEventListener('click', () => {
+        const dark = root.dataset.theme
+          ? root.dataset.theme === 'dark'
+          : matchMedia('(prefers-color-scheme: dark)').matches;
+        const next = dark ? 'light' : 'dark';
+        root.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch {}
+      });
+
+      const dialog = document.getElementById('search') as HTMLDialogElement;
+      const input = document.getElementById('search-input') as HTMLInputElement;
+      const list = document.getElementById('search-results') as HTMLOListElement;
+      const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+      let pagefind: any = null;
+      let timer = 0;
+
+      async function load() {
+        if (pagefind) return pagefind;
+        try {
+          pagefind = await import(/* @vite-ignore */ `${base}/pagefind/pagefind.js`);
+          await pagefind.init();
+        } catch {
+          pagefind = false;
+        }
+        return pagefind;
+      }
+      function open() {
+        dialog.showModal();
+        input.focus();
+        input.select();
+        load();
+      }
+      document.querySelectorAll('[data-open-search]').forEach((b) => b.addEventListener('click', open));
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); open(); }
+        if (e.key === '/' && !(e.target as HTMLElement).closest('input, textarea, [contenteditable]')) { e.preventDefault(); open(); }
+      });
+      dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+
+      input.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = window.setTimeout(async () => {
+          const q = input.value.trim();
+          list.textContent = '';
+          if (!q) return;
+          const pf = await load();
+          if (!pf) {
+            list.innerHTML = '<li class="empty">Search works on the built site. Run <code>npm run build</code> first.</li>';
+            return;
+          }
+          const res = await pf.search(q);
+          const items = await Promise.all(res.results.slice(0, 8).map((r: any) => r.data()));
+          if (!items.length) { list.innerHTML = '<li class="empty">No matches. Try a shorter word.</li>'; return; }
+          for (const it of items) {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = it.url;
+            const t = document.createElement('span');
+            t.className = 'r-title';
+            t.textContent = it.meta?.title ?? it.url;
+            const ex = document.createElement('span');
+            ex.className = 'r-ex';
+            ex.innerHTML = it.excerpt; // Pagefind escapes content and only adds <mark>
+            a.append(t, ex);
+            li.append(a);
+            list.append(li);
+          }
+        }, 120);
+      });
+    </script>
+
+    <style is:global>
+      .skip { position: absolute; left: -999px; top: 8px; background: var(--ink); color: var(--on-ink); padding: 8px 12px; border-radius: 8px; z-index: 10; }
+      .skip:focus { left: 12px; }
+      body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+      .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--bg) 84%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+      .topnav { display: flex; align-items: center; gap: 26px; padding-block: 12px; }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; letter-spacing: -0.01em; white-space: nowrap; }
+      .brand:hover { color: var(--fg); }
+      .brand-bg { fill: var(--ink); }
+      .brand-fg { stroke: var(--sage); }
+      :root[data-theme='dark'] .brand-fg { stroke: #2E6A5E; }
+      @media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .brand-fg { stroke: #2E6A5E; } }
+      .links { display: flex; gap: 22px; font-size: 14px; color: var(--muted); }
+      .links a[aria-current='page'] { color: var(--fg); }
+      .search-btn { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px 8px 12px; min-height: 40px; cursor: pointer; }
+      .search-btn kbd { font-family: var(--f-mono); font-size: 11px; border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; margin-left: 14px; }
+      .icon-btn { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; cursor: pointer; flex: none; }
+      .i-sun { display: none; }
+      :root[data-theme='dark'] .i-sun { display: block; } :root[data-theme='dark'] .i-moon { display: none; }
+      @media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .i-sun { display: block; } :root:not([data-theme='light']) .i-moon { display: none; } }
+      @media (max-width: 860px) { .links { display: none; } .search-label, .search-btn kbd { display: none; } .topnav { gap: 12px; } }
+
+      .foot { border-top: 1px solid var(--line); margin-top: 96px; }
+      .foot-in { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 28px 40px; font-size: 13px; color: var(--muted); }
+      .foot-links { display: flex; gap: 20px; }
+
+      .search { width: min(640px, calc(100vw - 32px)); max-height: min(70vh, 640px); padding: 0; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--fg); margin-top: 12vh; box-shadow: 0 30px 80px -30px rgba(0,0,0,.4); }
+      .search::backdrop { background: rgba(15, 18, 17, 0.35); backdrop-filter: blur(3px); }
+      .search-box { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); color: var(--muted); margin: 0; }
+      .search-box input { flex: 1; border: 0; outline: 0; background: transparent; font-size: 17px; color: var(--fg); min-width: 0; }
+      .esc { font-family: var(--f-mono); font-size: 11px; border: 1px solid var(--line); border-radius: 6px; padding: 3px 7px; background: transparent; color: var(--muted); cursor: pointer; }
+      .results { list-style: none; margin: 0; padding: 8px; overflow-y: auto; max-height: calc(min(70vh, 640px) - 64px); }
+      .results a { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 10px; }
+      .results a:hover, .results a:focus-visible { background: var(--sunk); color: var(--fg); }
+      .r-title { font-weight: 500; }
+      .r-ex { font-size: 13px; color: var(--muted); }
+      .r-ex mark { background: var(--sage-soft); color: var(--fg); border-radius: 3px; }
+      .results .empty { padding: 14px 12px; color: var(--muted); font-size: 14px; }
+    </style>
+  </body>
+</html>

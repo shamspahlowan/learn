@@ -1,0 +1,52 @@
+slug: system-design
+title: Software system design
+category: systems
+hours: 40
+prereqs: [databases-sql]
+paths: [ml-engineer, data-engineering]
+summary: Caching, queues, storage and distributed-systems trade-offs, enough to hold your own in a FAANG design round.
+outcomes:
+  - Run a 45-minute design interview from requirements to bottlenecks
+  - Estimate scale with back-of-the-envelope numbers
+  - Explain consistency, replication and partitioning trade-offs
+
+course_resources:
+  - {t: "System Design Primer", type: repo, url: "https://github.com/donnemartin/system-design-primer", free: true, via: community}
+  - {t: "Designing Data-Intensive Applications, 2nd ed. (Kleppmann, Riccomini, 2026)", type: book, url: "https://martin.kleppmann.com/2026/03/24/designing-data-intensive-applications-2e.html", free: false, via: community, note: "Updated for cloud and streaming-first systems"}
+  - {t: "ByteByteGo (Alex Xu)", type: course, url: "https://bytebytego.com/", free: false}
+  - {t: "MIT 6.5840 Distributed Systems", type: course, url: "https://pdos.csail.mit.edu/6.824/", free: true, via: official}
+
+modules:
+  - title: Building blocks
+    lessons:
+      - {t: "Load balancers and reverse proxies", d: core}
+      - {t: "Caching strategies and invalidation", d: interview, anim: true}
+      - {t: "Message queues and pub/sub", d: interview}
+      - {t: "CDNs and object storage", d: core}
+      - {t: "Rate limiting", d: interview}
+
+  - title: Data at scale
+    lessons:
+      - {t: "SQL vs NoSQL", d: interview}
+      - {t: "Replication (leader, multi-leader, leaderless)", d: interview, anim: true}
+      - {t: "Partitioning and consistent hashing", d: interview, anim: true}
+      - {t: "Consistency models and CAP", d: interview}
+    resources:
+      - {t: "DDIA 2e · chapters on replication and partitioning", type: book, url: "https://martin.kleppmann.com/2026/03/24/designing-data-intensive-applications-2e.html", free: false}
+
+  - title: The interview
+    lessons:
+      - {t: "Requirements and back-of-the-envelope estimates", d: interview}
+      - {t: "API and data model first", d: interview}
+      - {t: "Classic designs: URL shortener, news feed, chat, rate limiter", d: interview}
+    resources:
+      - {t: "System Design Primer · interview section", type: repo, url: "https://github.com/donnemartin/system-design-primer", free: true}
+
+  - title: Distributed systems (research depth)
+    lessons:
+      - {t: "Clocks and ordering", d: research}
+      - {t: "Consensus and Raft", d: research, anim: true}
+      - {t: "Exactly-once and idempotency", d: research}
+    resources:
+      - {t: "MIT 6.5840 · labs", type: course, url: "https://pdos.csail.mit.edu/6.824/", free: true}
+      - {t: "The Raft paper", type: paper, url: "https://raft.github.io/", free: true}

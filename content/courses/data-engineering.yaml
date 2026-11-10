@@ -1,0 +1,74 @@
+slug: data-engineering
+title: Data engineering
+category: data
+hours: 45
+prereqs: [databases-sql, python-for-ml]
+paths: [data-engineering, ml-engineer]
+summary: ETL vs ELT, data modelling, warehouses and lakehouses, orchestration, streaming and data quality.
+outcomes:
+  - Build a batch pipeline from source to warehouse to dashboard
+  - Model data with dimensional modelling and dbt
+  - Explain when to stream and how to keep data trustworthy
+
+course_resources:
+  - {t: "Data Engineering Zoomcamp (DataTalks.Club, 2026 edition)", type: course, url: "https://github.com/DataTalksClub/data-engineering-zoomcamp", free: true, via: community}
+  - {t: "r/dataengineering wiki · learning resources", type: docs, url: "https://dataengineering.wiki/Learning+Resources", free: true, via: community, note: "What the subreddit's moderators point newcomers to"}
+  - {t: "Fundamentals of Data Engineering (Reis, Housley)", type: book, url: "", free: false, via: community}
+  - {t: "Designing Data-Intensive Applications, 2nd ed.", type: book, url: "https://martin.kleppmann.com/2026/03/24/designing-data-intensive-applications-2e.html", free: false}
+  - {t: "Start Data Engineering (blog and projects)", type: article, url: "https://www.startdataengineering.com/", free: true}
+
+modules:
+  - title: The data lifecycle
+    lessons:
+      - {t: "Sources, ingestion, storage, transformation, serving", d: core}
+      - {t: "ETL vs ELT", d: interview, anim: true}
+      - {t: "Batch vs streaming", d: interview}
+
+  - title: Storage
+    lessons:
+      - {t: "Data warehouses, lakes and lakehouses", d: interview}
+      - {t: "File formats (Parquet, Avro) and table formats (Iceberg, Delta)", d: core}
+      - {t: "Partitioning and clustering", d: core}
+    resources:
+      - {t: "DuckDB docs", type: docs, url: "https://duckdb.org/docs/", free: true}
+
+  - title: Modelling and transformation
+    lessons:
+      - {t: "Dimensional modelling (facts, dimensions, SCDs)", d: interview, anim: true}
+      - {t: "Transformations with dbt", d: core}
+      - {t: "Testing and documenting models in dbt", d: core}
+    resources:
+      - {t: "dbt Learn", type: course, url: "https://learn.getdbt.com/", free: true, via: official}
+      - {t: "The Data Warehouse Toolkit (Kimball)", type: book, url: "", free: false}
+
+  - title: Orchestration
+    lessons:
+      - {t: "DAGs, scheduling and backfills", d: core, anim: true}
+      - {t: "Airflow fundamentals", d: core}
+      - {t: "Asset-based orchestration with Dagster", d: core}
+      - {t: "Idempotent pipelines", d: interview}
+    resources:
+      - {t: "Airflow docs", type: docs, url: "https://airflow.apache.org/docs/", free: true}
+      - {t: "Dagster University", type: course, url: "https://courses.dagster.io/", free: true}
+
+  - title: Distributed processing and streaming
+    lessons:
+      - {t: "Spark fundamentals", d: core}
+      - {t: "Kafka and event streams", d: core, anim: true}
+      - {t: "Stream processing concepts (windows, watermarks)", d: research}
+    resources:
+      - {t: "Spark docs", type: docs, url: "https://spark.apache.org/docs/latest/", free: true}
+      - {t: "Confluent Developer · Kafka courses", type: course, url: "https://developer.confluent.io/", free: true}
+
+  - title: Data quality and governance
+    lessons:
+      - {t: "Data contracts and validation", d: core}
+      - {t: "Observability and lineage", d: core}
+    resources:
+      - {t: "Great Expectations docs", type: docs, url: "https://docs.greatexpectations.io/", free: true}
+
+  - title: Capstone
+    lessons:
+      - {t: "Pipeline: public Bangladesh data → warehouse → dbt → dashboard", d: core}
+    practice:
+      - {t: "Follow the Zoomcamp project rubric for your capstone", url: "https://github.com/DataTalksClub/data-engineering-zoomcamp"}

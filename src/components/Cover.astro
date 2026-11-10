@@ -1,0 +1,141 @@
+---
+// Line-art cover for a course, drawn in its category colour. No images.
+interface Props { slug: string; category: string; big?: boolean }
+const { slug, category, big = false } = Astro.props;
+const kind = ({
+  'linear-algebra': 'grid', 'calculus-optimization': 'descent', 'probability-statistics': 'bell', 'information-theory': 'bits',
+  'deep-learning': 'net', 'llms': 'tokens', 'computer-vision': 'boxes', 'recommender-systems': 'towers', 'reinforcement-learning': 'loop',
+  'classical-ml': 'tree', 'data-engineering': 'pipe', 'mlops': 'pipe', 'ml-system-design': 'system', 'system-design': 'system',
+  'dsa': 'tree', 'databases-sql': 'table', 'python-for-ml': 'brackets', 'research-skills': 'paper', 'career-interviews': 'ladder', 'manim-explainers': 'grid',
+} as Record<string, string>)[slug] ?? 'grid';
+---
+<svg class:list={['cover', `cat-${category}`, { big }]} viewBox="0 0 360 150" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+  <rect width="360" height="150" class="bg"></rect>
+  {kind === 'grid' && (
+    <g class="ln">
+      <path class="faint" d="M-20 150 L40 0M20 150 L80 0M60 150 L120 0M100 150 L160 0M140 150 L200 0M180 150 L240 0M220 150 L280 0M260 150 L320 0M300 150 L360 0M340 150 L400 0"></path>
+      <path class="faint" d="M0 30 L360 10M0 70 L360 50M0 110 L360 90M0 150 L360 130"></path>
+      <path class="strong" d="M120 120 L230 55M218 52 L232 54 L226 67"></path>
+    </g>
+  )}
+  {kind === 'descent' && (
+    <g class="ln">
+      <path class="faint" d="M40 30 C120 150 240 150 320 30M70 40 C130 128 230 128 290 40M100 52 C145 106 215 106 260 52"></path>
+      <path class="strong" d="M60 40 L110 92 L150 112 L172 120 L180 122"></path>
+      <circle cx="180" cy="122" r="5" class="dot"></circle>
+    </g>
+  )}
+  {kind === 'bell' && (
+    <g class="ln">
+      <path class="strong" d="M30 130 C110 130 130 30 180 30 S250 130 330 130"></path>
+      <g class="dots"><circle cx="160" cy="70" r="3"></circle><circle cx="182" cy="52" r="3"></circle><circle cx="198" cy="80" r="3"></circle><circle cx="140" cy="96" r="3"></circle><circle cx="220" cy="100" r="3"></circle><circle cx="175" cy="88" r="3"></circle><circle cx="120" cy="115" r="3"></circle><circle cx="245" cy="118" r="3"></circle><circle cx="96" cy="124" r="3"></circle><circle cx="268" cy="124" r="3"></circle></g>
+    </g>
+  )}
+  {kind === 'bits' && (
+    <g class="ln">
+      {[0,1,2,3,4,5,6,7].map((i) => <rect x={40 + i * 36} y={60 - (i % 3) * 14} width="26" height={30 + (i % 3) * 28} rx="5" class={i % 2 ? 'fill-faint' : 'fill-strong'}></rect>)}
+    </g>
+  )}
+  {kind === 'net' && (
+    <g class="ln">
+      <path class="faint" d="M90 40 L180 30M90 40 L180 75M90 40 L180 120M90 75 L180 30M90 75 L180 75M90 75 L180 120M90 110 L180 30M90 110 L180 75M90 110 L180 120M180 30 L270 55M180 75 L270 55M180 120 L270 55M180 30 L270 95M180 75 L270 95M180 120 L270 95"></path>
+      {[[90,40],[90,75],[90,110],[180,30],[180,75],[180,120],[270,55],[270,95]].map(([x,y]) => <circle cx={x} cy={y} r="9" class="node"></circle>)}
+      <circle cx="180" cy="75" r="9" class="dot"></circle>
+    </g>
+  )}
+  {kind === 'tokens' && (
+    <g class="ln">
+      {[0.25,0.7,0.4,1,0.3,0.55,0.2].map((o, i) => <rect x={40 + i * 40} y="40" width="34" height="22" rx="5" class="fill-strong" style={`opacity:${o}`}></rect>)}
+      <path class="faint" d="M177 62 C177 100 97 90 97 118M177 62 C177 100 257 90 257 118M177 62 L177 118"></path>
+      {[80,160,240].map((x) => <rect x={x} y="112" width="34" height="22" rx="5" class="node"></rect>)}
+    </g>
+  )}
+  {kind === 'boxes' && (
+    <g class="ln">
+      <rect x="60" y="30" width="110" height="80" rx="6" class="box"></rect>
+      <rect x="190" y="50" width="90" height="70" rx="6" class="box"></rect>
+      <rect x="100" y="60" width="140" height="56" rx="6" class="box strongbox"></rect>
+    </g>
+  )}
+  {kind === 'towers' && (
+    <g class="ln">
+      {[0,1,2].map((i) => <rect x="80" y={30 + i * 32} width="70" height="22" rx="5" class="node"></rect>)}
+      {[0,1,2].map((i) => <rect x="210" y={30 + i * 32} width="70" height="22" rx="5" class="node"></rect>)}
+      <path class="strong" d="M150 77 C180 77 180 77 210 77"></path>
+      <circle cx="180" cy="77" r="5" class="dot"></circle>
+    </g>
+  )}
+  {kind === 'loop' && (
+    <g class="ln">
+      <rect x="60" y="55" width="80" height="40" rx="10" class="node"></rect>
+      <rect x="220" y="55" width="80" height="40" rx="10" class="node"></rect>
+      <path class="strong" d="M140 65 C180 30 180 30 220 65M220 85 C180 120 180 120 140 85"></path>
+    </g>
+  )}
+  {kind === 'tree' && (
+    <g class="ln">
+      <path class="faint" d="M180 30 L120 75M180 30 L240 75M120 75 L90 120M120 75 L150 120M240 75 L210 120M240 75 L270 120"></path>
+      {[[180,30],[120,75],[240,75],[90,120],[150,120],[210,120],[270,120]].map(([x,y]) => <circle cx={x} cy={y} r="9" class="node"></circle>)}
+      <circle cx="240" cy="75" r="9" class="dot"></circle>
+    </g>
+  )}
+  {kind === 'pipe' && (
+    <g class="ln">
+      <rect x="30" y="55" width="60" height="40" rx="10" class="node"></rect>
+      <rect x="150" y="30" width="60" height="40" rx="10" class="node"></rect>
+      <rect x="150" y="85" width="60" height="40" rx="10" class="node"></rect>
+      <rect x="270" y="55" width="60" height="40" rx="10" class="node"></rect>
+      <path class="strong dash" d="M90 75 C120 75 120 50 150 50M90 75 C120 75 120 105 150 105M210 50 C240 50 240 75 270 75M210 105 C240 105 240 75 270 75"></path>
+    </g>
+  )}
+  {kind === 'system' && (
+    <g class="ln">
+      <rect x="40" y="58" width="56" height="34" rx="8" class="node"></rect>
+      <rect x="140" y="28" width="80" height="34" rx="8" class="node"></rect>
+      <rect x="140" y="88" width="80" height="34" rx="8" class="node"></rect>
+      <rect x="264" y="58" width="56" height="34" rx="8" class="node"></rect>
+      <path class="strong" d="M96 75 H118 V45 H140M118 75 V105 H140M220 45 H242 V75 H264M220 105 H242 V75"></path>
+    </g>
+  )}
+  {kind === 'table' && (
+    <g class="ln">
+      <rect x="70" y="30" width="220" height="92" rx="8" class="node"></rect>
+      <path class="faint" d="M70 53 H290M70 76 H290M70 99 H290M140 30 V122M215 30 V122"></path>
+      <rect x="70" y="30" width="220" height="23" rx="8" class="fill-strong" style="opacity:.25"></rect>
+    </g>
+  )}
+  {kind === 'brackets' && (
+    <g class="ln">
+      <path class="strong" d="M120 35 C95 35 105 75 85 75 C105 75 95 115 120 115M240 35 C265 35 255 75 275 75 C255 75 265 115 240 115"></path>
+      <path class="faint" d="M145 60 H215M145 75 H200M145 90 H225"></path>
+    </g>
+  )}
+  {kind === 'paper' && (
+    <g class="ln">
+      <rect x="120" y="22" width="120" height="110" rx="6" class="node"></rect>
+      <path class="faint" d="M138 48 H222M138 62 H222M138 76 H200M138 96 H222M138 110 H190"></path>
+      <path class="strong" d="M222 34 V40"></path>
+    </g>
+  )}
+  {kind === 'ladder' && (
+    <g class="ln">
+      <path class="strong" d="M60 120 H120 V95 H180 V70 H240 V45 H300"></path>
+      <circle cx="300" cy="45" r="5" class="dot"></circle>
+    </g>
+  )}
+</svg>
+<style>
+  .cover { display: block; width: 100%; height: auto; aspect-ratio: 360 / 150; }
+  .bg { fill: var(--c-soft); }
+  .ln { fill: none; stroke: var(--c); stroke-linecap: round; stroke-linejoin: round; }
+  .faint { stroke-width: 1.2; opacity: .45; }
+  .strong { stroke-width: 2.5; }
+  .dash { stroke-dasharray: 4 5; stroke-width: 1.8; }
+  .dot { fill: var(--c); stroke: none; }
+  .dots circle { fill: var(--c); stroke: none; opacity: .55; }
+  .node { fill: var(--c-soft); stroke: var(--c); stroke-width: 1.8; }
+  .box { fill: none; stroke: var(--c); stroke-width: 1.5; opacity: .6; }
+  .strongbox { opacity: 1; stroke-width: 2.2; }
+  .fill-strong { fill: var(--c); stroke: none; }
+  .fill-faint { fill: var(--c); stroke: none; opacity: .35; }
+</style>

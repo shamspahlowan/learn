@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/site';
+---
+<Base title="Not found" noindex>
+  <div class="wrap page">
+    <span class="eyebrow">404</span>
+    <h1>This page doesn't exist.</h1>
+    <p class="muted">It may have moved when a course was reorganised. Try search, or start from the course list.</p>
+    <div class="cta"><button class="btn" type="button" data-open-search>Search</button><a class="btn primary" href={url('/courses/')}>All courses</a></div>
+  </div>
+</Base>
+<style>
+  .page { padding-block: 96px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font-size: 44px; letter-spacing: -0.04em; }
+  .cta { display: flex; gap: 12px; }
+</style>

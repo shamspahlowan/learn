@@ -1,0 +1,72 @@
+slug: python-for-ml
+title: Python for ML engineering
+category: cs
+hours: 30
+prereqs: []
+paths: [ml-engineer, data-engineering]
+summary: Production-quality Python plus the NumPy and pandas fluency every ML interview and job assumes.
+outcomes:
+  - Write vectorised NumPy and pandas without looking things up
+  - Structure a Python project with packaging, typing, tests and linting
+  - Profile and speed up slow data code
+
+course_resources:
+  - {t: "Python for Data Analysis, 3rd ed. (McKinney) · free online", type: book, url: "https://wesmckinney.com/book/", free: true, via: community}
+  - {t: "Fluent Python, 2nd ed. (Ramalho)", type: book, url: "", free: false, via: community, note: "The book for writing idiomatic Python"}
+  - {t: "From Python to NumPy (Rougier) · free", type: book, url: "https://www.labri.fr/perso/nrougier/from-python-to-numpy/", free: true}
+
+modules:
+  - title: Idiomatic Python
+    lessons:
+      - {t: "Data model, iterators and generators", d: core}
+      - {t: "Comprehensions, unpacking and closures", d: core}
+      - {t: "Classes, dataclasses and protocols", d: core}
+      - {t: "Type hints and mypy or pyright", d: core}
+      - {t: "Context managers and decorators", d: interview}
+    resources:
+      - {t: "Official Python tutorial", type: docs, url: "https://docs.python.org/3/tutorial/", free: true}
+      - {t: "typing module docs", type: docs, url: "https://docs.python.org/3/library/typing.html", free: true}
+
+  - title: NumPy
+    lessons:
+      - {t: "Arrays, dtypes and memory layout", d: core}
+      - {t: "Broadcasting", d: interview, anim: true}
+      - {t: "Vectorisation instead of loops", d: interview}
+      - {t: "Fancy indexing and einsum", d: core}
+    resources:
+      - {t: "NumPy user guide", type: docs, url: "https://numpy.org/doc/stable/user/", free: true}
+    practice:
+      - {t: "numpy-100 (all 100)", url: "https://github.com/rougier/numpy-100"}
+      - {t: "Tensor Puzzles", url: "https://github.com/srush/Tensor-Puzzles"}
+
+  - title: pandas and data wrangling
+    lessons:
+      - {t: "Series, DataFrames and indexes", d: core}
+      - {t: "groupby, merge and pivot", d: interview}
+      - {t: "Missing data and dtypes", d: core}
+      - {t: "Method chaining and performance", d: core}
+      - {t: "Polars as a faster alternative", d: core}
+    resources:
+      - {t: "McKinney · chapters 5–10", type: book, url: "https://wesmckinney.com/book/", free: true}
+      - {t: "Kaggle Learn · Pandas", type: course, url: "https://www.kaggle.com/learn/pandas", free: true}
+      - {t: "Polars user guide", type: docs, url: "https://docs.pola.rs/", free: true}
+
+  - title: Project hygiene
+    lessons:
+      - {t: "Environments and packaging with uv", d: core}
+      - {t: "Linting and formatting with Ruff", d: core}
+      - {t: "Testing with pytest (fixtures, parametrize)", d: core}
+      - {t: "Logging, config and CLI tools", d: core}
+    resources:
+      - {t: "uv docs", type: docs, url: "https://docs.astral.sh/uv/", free: true}
+      - {t: "Ruff docs", type: docs, url: "https://docs.astral.sh/ruff/", free: true}
+      - {t: "pytest docs", type: docs, url: "https://docs.pytest.org/", free: true}
+
+  - title: Performance and concurrency
+    lessons:
+      - {t: "Profiling with cProfile and line_profiler", d: core}
+      - {t: "Threads, processes and the GIL", d: interview}
+      - {t: "asyncio for I/O-bound services", d: core}
+      - {t: "When to reach for Numba or Cython", d: research}
+    resources:
+      - {t: "asyncio docs", type: docs, url: "https://docs.python.org/3/library/asyncio.html", free: true}

@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, url } from '../lib/site';
+---
+<Base title="About" description="Who writes this site and how it works.">
+  <div class="wrap page" data-pagefind-body>
+    <span class="eyebrow">About</span>
+    <h1>Hi, I'm Shams.</h1>
+    <div class="prose">
+      <p>I'm a final-year CS student at AIUB and a Flutter developer who has shipped production apps and put on-device ML models into them. This site is where I go deeper: training and evaluating models myself, the maths underneath, and the data and serving systems around them.</p>
+      <p>Every course here is organised in three layers. <strong>Core</strong> is what a working ML engineer must be able to do. <strong>Interview</strong> is what you must be able to explain or derive under pressure. <strong>Research</strong> is the proofs and papers behind it.</p>
+      <p>The site is built with Astro and hosted on GitHub Pages. Lesson notes are plain Markdown files, and the maths renders with KaTeX. The <a href={SITE.repo}>source is on GitHub</a>.</p>
+      <p>Find me on <a href={SITE.github}>GitHub</a> and <a href={SITE.linkedin}>LinkedIn</a>, or follow new posts by <a href={url('/rss.xml')}>RSS</a>.</p>
+    </div>
+  </div>
+</Base>
+<style>
+  .page { padding-block: 64px; max-width: 760px; }
+  h1 { font-size: 48px; letter-spacing: -0.045em; margin: 12px 0 28px; }
+</style>

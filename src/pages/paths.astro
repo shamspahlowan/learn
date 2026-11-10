@@ -1,0 +1,61 @@
+---
+import Base from '../layouts/Base.astro';
+import { allCourses, lessonCount, PATHS, CATEGORIES } from '../lib/courses';
+import { url } from '../lib/site';
+
+const courses = await allCourses();
+const bySlug = Object.fromEntries(courses.map((c) => [c.slug, c]));
+---
+<Base title="Paths" description="Ordered routes through the courses: ML engineer, ML research and data engineering.">
+  <div class="wrap page" data-pagefind-body>
+    <header class="head">
+      <span class="eyebrow">Routes</span>
+      <h1>Paths</h1>
+      <p class="muted">A path is an ordered route through the courses. One course can belong to several paths.</p>
+    </header>
+    {PATHS.map((p) => {
+      const list = p.courses.map((s) => bySlug[s]).filter(Boolean);
+      const hours = list.reduce((n, c) => n + c.hours, 0);
+      const lessons = list.reduce((n, c) => n + lessonCount(c), 0);
+      return (
+        <section class="path card" id={p.slug}>
+          <div class="ph">
+            <div>
+              <h2>{p.title}</h2>
+              <p class="muted">{p.blurb}</p>
+            </div>
+            <span class="mono muted tot">{list.length} courses · {lessons} lessons · ~{hours} h</span>
+          </div>
+          <ol class="steps">
+            {list.map((c, i) => (
+              <li class={`cat-${c.category}`}>
+                <a href={url(`/courses/${c.slug}/`)}>
+                  <span class="mono n">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="t">{c.title}</span>
+                  <span class="pill">{CATEGORIES[c.category]}</span>
+                  <span class="mono muted h">~{c.hours} h</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      );
+    })}
+  </div>
+</Base>
+<style>
+  .page { padding-block: 64px; }
+  .head { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+  h1 { font-size: 48px; letter-spacing: -0.045em; }
+  .path { padding: 26px 26px 10px; margin-top: 18px; }
+  .ph { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  .ph h2 { font-size: 24px; margin-bottom: 6px; }
+  .ph p { max-width: 56ch; font-size: 15px; }
+  .tot { font-size: 12px; }
+  .steps { list-style: none; margin: 0; padding: 0; }
+  .steps a { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto 60px; gap: 14px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line-soft); }
+  .n { color: var(--c); font-size: 12px; }
+  .t { font-weight: 500; }
+  .h { font-size: 12px; text-align: right; }
+  @media (max-width: 700px) { .steps a { grid-template-columns: 30px minmax(0, 1fr) 50px; } .steps .pill { display: none; } }
+</style>

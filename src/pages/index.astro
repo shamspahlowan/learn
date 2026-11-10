@@ -1,0 +1,181 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import CourseCard from '../components/CourseCard.astro';
+import { allCourses, lessonCount, lessonsOf, PATHS } from '../lib/courses';
+import { url } from '../lib/site';
+
+const courses = await allCourses();
+const featured = courses.filter((c) => ['linear-algebra', 'probability-statistics', 'deep-learning', 'llms', 'data-engineering', 'ml-system-design'].includes(c.slug));
+const la = courses.find((c) => c.slug === 'linear-algebra')!;
+const laLessons = lessonsOf(la);
+const totalLessons = courses.reduce((n, c) => n + lessonCount(c), 0);
+const posts = (await getCollection('writing', ({ data }) => !data.draft)).sort((a, b) => +b.data.date - +a.data.date);
+const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+---
+<Base>
+  <section class="hero-band">
+    <div class="wrap hero">
+      <div class="hero-copy">
+        <span class="now"><span class="pulse" aria-hidden="true"></span>Now studying · Linear algebra</span>
+        <h1>Learning machine learning <span class="serif-em">from first principles</span>.</h1>
+        <p class="lede">Notes, animations and projects on my way from Flutter developer to ML engineer. The math, the models, the data systems, and the research behind them.</p>
+        <div class="cta">
+          <a class="btn primary" href={url('/courses/')}>Browse courses <span aria-hidden="true">→</span></a>
+          <a class="btn" href={url('/writing/')}>Read the writing</a>
+        </div>
+        <p class="mono stats">{courses.length} courses · {totalLessons} lessons · math → models → systems → research</p>
+      </div>
+      <figure class="frame">
+        <svg viewBox="0 0 520 330" role="img" aria-label="Vector a projected onto vector b, with the angle theta between them">
+          <g stroke="#1E2523" stroke-width="1"><path d="M0 30H520M0 90H520M0 150H520M0 210H520M0 270H520M70 0V330M130 0V330M190 0V330M250 0V330M310 0V330M370 0V330M430 0V330M490 0V330"></path></g>
+          <path d="M30 270H500M70 300V20" stroke="#38423F" stroke-width="1.5"></path>
+          <path d="M290 80 L316.6 224.6" stroke="#9AA29E" stroke-width="1.5" stroke-dasharray="5 6" class="draw d3"></path>
+          <path d="M70 270 L316.6 224.6" stroke="#E7B66B" stroke-width="6" stroke-linecap="round" opacity="0.35" class="draw d4"></path>
+          <path d="M70 270 L450 200" stroke="#7FC2B0" stroke-width="3" stroke-linecap="round" class="draw d1"></path>
+          <path d="M438 196 L452 200 L441 210" fill="none" stroke="#7FC2B0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+          <path d="M70 270 L290 80" stroke="#E7B66B" stroke-width="3" stroke-linecap="round" class="draw d2"></path>
+          <path d="M278 86 L291 79 L289 94" fill="none" stroke="#E7B66B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+          <path d="M119.2 261 A50 50 0 0 0 107.8 237.3" fill="none" stroke="#E7EAE8" stroke-width="1.5"></path>
+          <circle cx="316.6" cy="224.6" r="4" fill="#E7B66B"></circle>
+          <text x="128" y="252" fill="#E7EAE8" font-family="Newsreader, serif" font-style="italic" font-size="18">θ</text>
+          <text x="296" y="70" fill="#E7B66B" font-family="Newsreader, serif" font-style="italic" font-size="22">a</text>
+          <text x="460" y="196" fill="#7FC2B0" font-family="Newsreader, serif" font-style="italic" font-size="22">b</text>
+          <text x="330" y="248" fill="#9AA29E" font-family="Geist Mono, monospace" font-size="12">proj_b a</text>
+          <text x="40" y="44" fill="#E7EAE8" font-family="Newsreader, serif" font-size="22">a · b = ‖a‖ ‖b‖ cos <tspan font-style="italic">θ</tspan></text>
+        </svg>
+        <figcaption>
+          <span>Lesson 1.2 · Dot product and cosine similarity</span>
+          <a href={url(`/courses/linear-algebra/${laLessons[1].slug}/`)}>Open lesson →</a>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <div class="section-head"><h2>Start here</h2></div>
+    <div class="bento">
+      <article class="tile main cat-math">
+        <div class="tile-top">
+          <div>
+            <span class="eyebrow cat">First course</span>
+            <h3>Linear algebra for ML</h3>
+            <p class="muted">{la.modules.length} modules · {laLessons.length} lessons · ~{la.hours} h</p>
+          </div>
+        </div>
+        <ol class="mods">
+          {la.modules.map((m, i) => (
+            <li><span class="mono num">{String(i + 1).padStart(2, '0')}</span>{m.title}<span class="mono muted cnt">{m.lessons.length}</span></li>
+          ))}
+        </ol>
+        <a class="link-accent" href={url('/courses/linear-algebra/')}>Open the syllabus →</a>
+      </article>
+
+      <article class="tile dark">
+        <span class="eyebrow ac">Paths</span>
+        <ul class="paths">
+          {PATHS.map((p) => (
+            <li><a href={url(`/paths/#${p.slug}`)}><span>{p.title}</span><span class="mono">{p.courses.length} courses →</span></a></li>
+          ))}
+        </ul>
+      </article>
+
+      {posts[0] ? (
+        <a class="tile post" href={url(`/writing/${posts[0].id}/`)}>
+          <span class="eyebrow ind">Latest writing</span>
+          <h3>{posts[0].data.title}</h3>
+          <span class="ind-s">{fmt(posts[0].data.date)}</span>
+        </a>
+      ) : null}
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <div class="section-head">
+      <div>
+        <h2>Courses</h2>
+        <p class="muted sub">Each course goes three layers deep: core, interview and research.</p>
+      </div>
+      <a class="link-accent" href={url('/courses/')}>See all {courses.length} →</a>
+    </div>
+    <div class="cards">
+      {featured.map((c) => <CourseCard course={c} />)}
+    </div>
+  </section>
+
+  {posts.length > 0 && (
+    <section class="wrap section">
+      <div class="section-head"><h2>Writing</h2><a class="link-accent" href={url('/writing/')}>All posts →</a></div>
+      <div class="plist">
+        {posts.slice(0, 4).map((p) => (
+          <a href={url(`/writing/${p.id}/`)} class="prow">
+            <span class="mono muted">{fmt(p.data.date)}</span>
+            <span class="ptitle">{p.data.title}</span>
+            <span class={`pill kind-${p.data.kind}`}>{p.data.kind}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+</Base>
+
+<style>
+  .hero-band { border-bottom: 1px solid var(--line); background-image: radial-gradient(var(--dots) 1px, transparent 1px); background-size: 22px 22px; }
+  .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 56px; align-items: center; padding-block: 88px 80px; }
+  .hero-copy { display: flex; flex-direction: column; gap: 24px; }
+  .now { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--sage); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px 6px 10px; }
+  .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--sage); box-shadow: 0 0 0 4px var(--sage-soft); animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 7px transparent; } }
+  h1 { font-size: clamp(40px, 6vw, 68px); line-height: 1.02; letter-spacing: -0.045em; }
+  .lede { font-size: 18px; line-height: 1.6; color: var(--muted); max-width: 34em; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .stats { font-size: 12px; color: var(--muted); letter-spacing: .02em; }
+  .frame { margin: 0; background: #111514; border-radius: 22px; padding: 14px; box-shadow: 0 30px 60px -30px rgba(21,24,26,.5), 0 0 0 1px var(--line); }
+  .frame svg { display: block; width: 100%; height: auto; border-radius: 12px; }
+  .frame figcaption { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 6px 2px; font-family: var(--f-mono); font-size: 12px; color: #9AA29E; }
+  .frame figcaption a { color: #E7EAE8; }
+  .draw { stroke-dasharray: 600; stroke-dashoffset: 600; animation: draw 1.2s ease-out forwards; }
+  .d1 { animation-delay: .2s; } .d2 { animation-delay: .7s; } .d3 { animation-delay: 1.3s; stroke-dasharray: 5 6; stroke-dashoffset: 0; animation: fade .6s 1.3s both; } .d4 { animation-delay: 1.6s; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes fade { from { opacity: 0; } }
+
+  .bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+  .tile { border-radius: var(--r-lg); padding: 24px 26px; display: flex; flex-direction: column; gap: 12px; }
+  .tile.main { grid-column: span 3; grid-row: span 2; background: var(--surface); border: 1px solid var(--line); gap: 18px; }
+  .tile h3 { font-size: 24px; margin: 6px 0 4px; }
+  .cat { color: var(--c); }
+  .mods { list-style: none; margin: 0; padding: 0; }
+  .mods li { display: flex; gap: 14px; align-items: baseline; padding: 11px 0; border-top: 1px solid var(--line-soft); font-size: 15px; }
+  .num { color: var(--c); font-size: 12px; }
+  .cnt { margin-left: auto; font-size: 12px; }
+  .main .link-accent { margin-top: auto; }
+  .tile.dark { grid-column: span 3; background: var(--ink); color: var(--on-ink); }
+  .ac { color: var(--sage); }
+  :root[data-theme='dark'] .tile.dark .ac { color: #2E6A5E; }
+  .paths { list-style: none; margin: 4px 0 0; padding: 0; }
+  .paths a { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid color-mix(in srgb, var(--on-ink) 14%, transparent); font-size: 17px; font-weight: 500; }
+  .paths a:hover { color: var(--on-ink); opacity: .8; }
+  .paths .mono { font-size: 12px; opacity: .7; font-weight: 400; }
+  .tile.post { grid-column: span 3; background: var(--indigo-soft); }
+  .tile.post h3 { font-family: var(--f-serif); font-weight: 400; font-size: 26px; line-height: 1.2; letter-spacing: -0.01em; color: var(--fg); }
+  .tile.post:hover { color: inherit; }
+  .ind, .ind-s { color: var(--indigo); }
+  .ind-s { font-size: 13px; }
+  .sub { margin-top: 8px; font-size: 15px; }
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .plist { border-top: 1px solid var(--line); }
+  .prow { display: grid; grid-template-columns: 90px minmax(0, 1fr) auto; gap: 20px; align-items: baseline; padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .prow .mono { font-size: 12px; }
+  .ptitle { font-family: var(--f-serif); font-size: 23px; letter-spacing: -0.01em; }
+  .kind-video { --c: var(--indigo); --c-soft: var(--indigo-soft); }
+  .kind-notes { --c: var(--sage); --c-soft: var(--sage-soft); }
+  .kind-project, .kind-retro { --c: var(--amber); --c-soft: var(--amber-soft); }
+  @media (max-width: 900px) {
+    .hero, .cards { grid-template-columns: minmax(0, 1fr); }
+    .hero { padding-block: 56px; gap: 36px; }
+    .bento { grid-template-columns: minmax(0, 1fr); }
+    .bento > * { grid-column: auto !important; grid-row: auto !important; }
+    .prow { grid-template-columns: minmax(0, 1fr) auto; }
+    .prow .mono { display: none; }
+  }
+</style>

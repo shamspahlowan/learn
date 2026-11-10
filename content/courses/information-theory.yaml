@@ -1,0 +1,42 @@
+slug: information-theory
+title: Information theory for ML
+category: math
+hours: 14
+prereqs: [probability-statistics]
+paths: [ml-research]
+summary: Entropy, cross-entropy and KL divergence, the language behind most loss functions and a lot of research papers.
+outcomes:
+  - Explain why minimising cross-entropy is the same as minimising KL divergence
+  - Read the information-theoretic parts of papers (VAEs, contrastive learning, compression)
+  - Compute entropy, mutual information and perplexity by hand
+
+course_resources:
+  - {t: "Information Theory, Inference, and Learning Algorithms (MacKay) · free PDF", type: book, url: "https://www.inference.org.uk/itila/book.html", free: true, via: community, note: "Most recommended; chapters 1–2 first"}
+  - {t: "Visual Information Theory (Colah)", type: article, url: "https://colah.github.io/posts/2015-09-Visual-Information/", free: true}
+  - {t: "Dive into Deep Learning · information theory appendix", type: book, url: "https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/information-theory.html", free: true}
+
+modules:
+  - title: Entropy and coding
+    lessons:
+      - {t: "Information content and entropy", d: core, anim: true}
+      - {t: "Source coding and why entropy is a compression limit", d: research}
+      - {t: "Perplexity of language models", d: interview}
+    resources:
+      - {t: "MacKay · chapters 1–2 and 4–5", type: book, url: "https://www.inference.org.uk/itila/book.html", free: true}
+
+  - title: Divergences
+    lessons:
+      - {t: "Cross-entropy as a loss", d: interview}
+      - {t: "KL divergence and its asymmetry", d: interview, anim: true}
+      - {t: "Jensen–Shannon and other divergences", d: research}
+    resources:
+      - {t: "Colah · Visual Information Theory", type: article, url: "https://colah.github.io/posts/2015-09-Visual-Information/", free: true}
+
+  - title: Mutual information in ML
+    lessons:
+      - {t: "Mutual information", d: core}
+      - {t: "Contrastive learning and InfoNCE", d: research}
+      - {t: "The ELBO in variational autoencoders", d: research}
+    resources:
+      - {t: "Elements of Information Theory (Cover, Thomas)", type: book, url: "", free: false, note: "Rigorous reference"}
+      - {t: "CMU 10-704 Information processing and learning", type: course, url: "https://www.cs.cmu.edu/~aarti/Class/10704/lecs.html", free: true}
