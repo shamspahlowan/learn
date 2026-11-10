@@ -1,39 +1,46 @@
 ---
+import ResIcon from './ResIcon.astro';
 import { hostOf } from '../lib/courses';
 
 interface Res { t: string; type?: string; url?: string; free?: boolean; via?: string; note?: string }
-interface Props { items: Res[]; practice?: boolean }
-const { items, practice = false } = Astro.props;
-const label: Record<string, string> = { video: 'Video', course: 'Course', book: 'Book', docs: 'Docs', article: 'Article', paper: 'Paper', repo: 'Repo', exercises: 'Exercises', tool: 'Tool' };
+interface Props { items: Res[]; practice?: boolean; compact?: boolean }
+const { items, practice = false, compact = false } = Astro.props;
 ---
-<ul class:list={['res', { practice }]}>
-  {items.map((r) => (
-    <li>
-      <span class="type mono">{practice ? 'Do' : label[r.type ?? ''] ?? r.type}</span>
-      <div class="what">
-        {r.url ? <a href={r.url} rel="noopener">{r.t}<span class="host mono"> · {hostOf(r.url)} ↗</span></a> : <span>{r.t}</span>}
-        {(r.note || r.free === false || r.via === 'community') && (
-          <span class="meta">
-            {r.free === false && <span class="paid">paid</span>}
-            {r.via === 'community' && <span class="comm">community pick</span>}
-            {r.note && <span>{r.note}</span>}
+<ul class:list={['res', { compact }]}>
+  {items.map((r) => {
+    const Tag = r.url ? 'a' : 'div';
+    return (
+      <li>
+        <Tag class="item" href={r.url || undefined} rel={r.url ? 'noopener' : undefined}>
+          <ResIcon type={practice ? 'do' : r.type} />
+          <span class="what">
+            <span class="title">{r.t}{r.url && <span class="ext" aria-hidden="true"> ↗</span>}</span>
+            <span class="meta">
+              {r.url && <span class="mono host">{hostOf(r.url)}</span>}
+              {r.free === false && <span class="paid">paid</span>}
+              {r.via === 'community' && <span class="comm">community pick</span>}
+              {r.note && !compact && <span class="note">{r.note}</span>}
+              {!r.url && practice && <span class="note">Do it in a notebook</span>}
+            </span>
+            {r.note && compact && <span class="note">{r.note}</span>}
           </span>
-        )}
-      </div>
-    </li>
-  ))}
+        </Tag>
+      </li>
+    );
+  })}
 </ul>
 <style>
-  .res { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-  li { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px solid var(--line-soft); font-size: 14.5px; line-height: 1.45; }
-  li:first-child { border-top: 0; }
-  .type { font-size: 11px; color: var(--muted); padding-top: 3px; text-transform: uppercase; letter-spacing: .06em; }
-  .practice .type { color: var(--amber); }
+  .res { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .item { display: flex; gap: 12px; align-items: flex-start; padding: 10px; margin: 0 -10px; border-radius: 12px; color: var(--fg); }
+  a.item:hover { background: var(--sunk); color: var(--fg); }
+  a.item:hover .title { color: var(--accent); }
   .what { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-  .what a { color: var(--fg); }
-  .what a:hover { color: var(--accent); }
-  .host { font-size: 11.5px; color: var(--muted); }
-  .meta { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+  .title { font-size: 14.5px; line-height: 1.4; font-weight: 500; }
+  .ext { color: var(--muted); font-weight: 400; }
+  .meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; font-size: 12.5px; color: var(--muted); }
+  .host { font-size: 11.5px; }
   .paid { color: var(--coral); }
   .comm { color: var(--sage); }
+  .compact .title { font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .compact .note { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
 </style>

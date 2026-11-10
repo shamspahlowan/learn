@@ -4,7 +4,8 @@ import { allCourses, lessonsOf, PATHS } from '../lib/courses';
 
 const courses = await allCourses();
 const catalog = {
-  lessons: courses.flatMap((c) => lessonsOf(c).map((l) => ({ c: c.slug, s: l.slug, t: l.title, n: l.number, ct: c.title }))),
+  lessons: courses.flatMap((c) => lessonsOf(c).map((l) => ({ c: c.slug, s: l.slug, t: l.title, n: l.number }))),
+  courses: courses.map((c) => ({ slug: c.slug, title: c.title, cat: c.category, total: lessonsOf(c).length })),
   paths: PATHS.map((p) => ({ slug: p.slug, title: p.title, courses: p.courses })),
 };
 ---
@@ -12,13 +13,14 @@ const catalog = {
   <script type="application/json" id="catalog" set:html={JSON.stringify(catalog)} />
   <div class="wrap page">
     <div class="bar">
-      <span class="lock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Only the owner can see this</span>
+      <span class="lock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Private · only you can see this</span>
       <button class="btn small" id="sign-out" type="button" hidden>Sign out</button>
     </div>
 
-    <section id="v-loading" class="center"><p class="muted">Checking your session…</p></section>
+    <section id="v-loading" class="center"><span class="spinner" aria-hidden="true"></span><p class="muted">Loading your tracker…</p></section>
 
     <section id="v-signin" class="center" hidden>
+      <span class="eyebrow">Private</span>
       <h1>Tracker</h1>
       <p class="muted">Sign in with GitHub to see your progress, reviews and journal.</p>
       <button class="btn primary" id="sign-in" type="button">
@@ -36,319 +38,582 @@ const catalog = {
     <section id="v-dash" hidden>
       <header class="hello">
         <div>
-          <span class="mono muted" id="today-line"></span>
+          <span class="mono muted date" id="today-line"></span>
           <h1>Good <span id="part-of-day">day</span>, <span class="serif-em">Shams</span></h1>
+          <p class="muted summary" id="summary"></p>
+        </div>
+        <div class="hello-actions">
+          <button class="btn" type="button" id="open-log"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Log session</button>
+          <a class="btn primary" href="#focus"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2M9 2h6"></path></svg>Focus</a>
         </div>
       </header>
 
-      <div class="stats">
-        <div class="stat"><span class="muted">Reviews due</span><b id="s-due">0</b><span class="small" id="s-due-sub"></span></div>
-        <div class="stat"><span class="muted">This week</span><b><span id="s-week">0</span><small> h</small></b><span class="small muted" id="s-week-sub"></span></div>
-        <div class="stat"><span class="muted">Streak</span><b><span id="s-streak">0</span><small> days</small></b><span class="small muted" id="s-best"></span></div>
-        <div class="stat ink"><span>Lessons done</span><b><span id="s-done">0</span><small> / <span id="s-total"></span></small></b><div class="meter"><i id="s-done-bar"></i></div></div>
-      </div>
+      <div class="grid">
+        <article class="tile continue s7" id="continue"></article>
+        <article class="tile reviews s5" id="reviews-card"></article>
 
-      <div class="two">
-        <section class="card box">
-          <div class="bh"><h2>Review queue</h2><span class="muted small" id="rq-count"></span></div>
-          <ol class="rows" id="review-list"></ol>
+        <div class="stats s12">
+          <div class="stat"><span class="sl">This week</span><b id="st-week"></b><div class="mini" id="st-week-bars" aria-hidden="true"></div></div>
+          <div class="stat"><span class="sl">Streak</span><b id="st-streak"></b><div class="dots" id="st-streak-dots" aria-hidden="true"></div><span class="sub" id="st-best"></span></div>
+          <div class="stat ring-stat"><div><span class="sl">Lessons done</span><b id="st-done"></b><span class="sub" id="st-done-sub"></span></div><svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" class="rt"></circle><circle cx="32" cy="32" r="26" class="rv" id="st-done-ring" stroke-dasharray="0 164"></circle></svg></div>
+          <div class="stat"><span class="sl">Avg confidence</span><b id="st-conf"></b><div class="confbar" id="st-conf-bar" aria-hidden="true"></div><span class="sub" id="st-weak"></span></div>
+        </div>
+
+        <section class="tile card s7" id="queue">
+          <div class="th"><h2>Review queue</h2><span class="muted small" id="q-count"></span></div>
+          <p class="hint small muted">Spaced repetition: each “Got it” pushes the next review further out (1 → 3 → 7 → 21 → 60 days). “Again” brings it back tomorrow.</p>
+          <ol class="qlist" id="q-list"></ol>
         </section>
-        <section class="box timer">
-          <span class="eyebrow ac">Focus timer</span>
-          <svg width="170" height="170" viewBox="0 0 170 170" role="img" aria-label="Focus timer">
-            <circle cx="85" cy="85" r="74" fill="none" class="t-track" stroke-width="8"></circle>
-            <circle cx="85" cy="85" r="74" fill="none" class="t-arc" stroke-width="8" stroke-linecap="round" stroke-dasharray="465 465" stroke-dashoffset="0" transform="rotate(-90 85 85)" id="t-arc"></circle>
-            <text x="85" y="94" text-anchor="middle" class="t-num" id="t-num">25:00</text>
-          </svg>
+
+        <section class="tile timer s5" id="focus">
+          <div class="th"><h2>Focus timer</h2><div class="presets" role="group" aria-label="Session length">
+            <button type="button" data-preset="25" aria-pressed="true">25</button><button type="button" data-preset="45" aria-pressed="false">45</button><button type="button" data-preset="60" aria-pressed="false">60</button>
+          </div></div>
+          <div class="clock">
+            <svg viewBox="0 0 200 200" role="img" aria-label="Focus timer">
+              <circle cx="100" cy="100" r="86" class="ct"></circle>
+              <circle cx="100" cy="100" r="86" class="cv" id="t-arc" stroke-dasharray="540.4 540.4" stroke-dashoffset="0" transform="rotate(-90 100 100)"></circle>
+            </svg>
+            <div class="clock-in"><span class="t-num mono" id="t-num">25:00</span><span class="small muted" id="t-on">Ready</span></div>
+          </div>
           <div class="trow">
-            <button class="btn small primary" type="button" id="t-start">Start</button>
-            <button class="btn small" type="button" id="t-reset">Reset</button>
+            <button class="btn primary" type="button" id="t-start">Start</button>
+            <button class="btn" type="button" id="t-reset">Reset</button>
           </div>
-          <p class="small ac">A finished 25-minute session logs itself to your journal.</p>
+          <p class="small muted center-t">Finished sessions log themselves to your journal.</p>
         </section>
-      </div>
 
-      <div class="two">
-        <section class="card box">
-          <div class="bh"><h2>Study activity</h2><span class="mono muted small" id="heat-sum"></span></div>
-          <div class="heat" id="heat" role="img" aria-label="Study minutes per day over the last 26 weeks"></div>
-          <div class="legend small muted">less <i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i> more</div>
+        <section class="tile card s7">
+          <div class="th"><h2>This week</h2>
+            <label class="goal small muted">Goal <input id="goal" type="number" min="1" max="80" step="1" aria-label="Weekly goal in hours" /> h</label>
+          </div>
+          <div class="week" id="week-chart"></div>
+          <div class="goalbar"><span class="small" id="goal-text"></span><span class="track"><i id="goal-fill"></i></span></div>
         </section>
-        <section class="card box">
-          <h2>Paths</h2>
-          <div id="paths" class="paths"></div>
-          <div class="weak">
-            <span class="small muted">Weak spots (confidence 2 or below)</span>
-            <div id="weak" class="chips"></div>
+
+        <section class="tile card s5">
+          <div class="th"><h2>Paths</h2></div>
+          <div class="paths" id="paths"></div>
+        </section>
+
+        <section class="tile card s12">
+          <div class="th"><h2>Activity</h2><span class="mono muted small" id="heat-sum"></span></div>
+          <div class="heat-wrap">
+            <div class="wdays small muted" aria-hidden="true"><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span></span></div>
+            <div class="heat-col">
+              <div class="months small muted" id="months" aria-hidden="true"></div>
+              <div class="heat" id="heat" role="img" aria-label="Study minutes per day over the last year"></div>
+            </div>
+          </div>
+          <div class="legend small muted">Less <i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i> More</div>
+        </section>
+
+        <section class="tile card s7">
+          <div class="th"><h2>Courses in progress</h2></div>
+          <ol class="clist" id="courses"></ol>
+        </section>
+
+        <section class="tile card s5">
+          <div class="th"><h2>Journal</h2></div>
+          <ol class="journal" id="journal"></ol>
+          <div class="weak-box">
+            <span class="small muted">Weak spots · confidence 2 or below</span>
+            <div class="chips" id="weak"></div>
           </div>
         </section>
       </div>
-
-      <div class="two">
-        <section class="card box">
-          <div class="bh"><h2>In progress</h2></div>
-          <ol class="rows" id="learning-list"></ol>
-        </section>
-        <section class="card box">
-          <h2>Log a session</h2>
-          <form id="log-form" class="logf">
-            <label for="lf-min">Minutes</label>
-            <input id="lf-min" type="number" min="5" max="600" step="5" value="45" required />
-            <label for="lf-note">What did you do?</label>
-            <textarea id="lf-note" rows="3" placeholder="Finished SVD lesson, did 2 NeetCode graphs"></textarea>
-            <button class="btn small primary" type="submit">Log session</button>
-            <span class="small muted" id="lf-status" aria-live="polite"></span>
-          </form>
-        </section>
-      </div>
-
-      <section class="card box">
-        <div class="bh"><h2>Journal</h2></div>
-        <ol class="rows journal" id="journal"></ol>
-      </section>
     </section>
   </div>
+
+  <dialog class="logd" id="log-dialog" aria-labelledby="log-title">
+    <form method="dialog" id="log-form" class="logf">
+      <div class="th"><h2 id="log-title">Log a session</h2><button class="x" value="cancel" aria-label="Close">×</button></div>
+      <span class="small muted">How long?</span>
+      <div class="mins" role="group" aria-label="Minutes">
+        {[15, 30, 45, 60, 90, 120].map((m) => <button type="button" data-min={m} aria-pressed={m === 45 ? 'true' : 'false'}>{m < 60 ? `${m}m` : `${m / 60}h`}</button>)}
+      </div>
+      <label for="lf-course" class="small muted">Course (optional)</label>
+      <select id="lf-course"><option value="">General study</option>{courses.map((c) => <option value={c.slug}>{c.title}</option>)}</select>
+      <label for="lf-note" class="small muted">What did you do?</label>
+      <textarea id="lf-note" rows="3" placeholder="Finished the SVD lesson, did 2 NeetCode graph problems"></textarea>
+      <div class="frow"><span class="small muted" id="lf-status" aria-live="polite"></span><button class="btn primary" type="submit" value="save">Save session</button></div>
+    </form>
+  </dialog>
 </Base>
 
 <script>
-  import { supa, getOwner, REVIEW_STEPS, addDays, isoDay } from '../scripts/supa';
+  import { supa, REVIEW_STEPS, addDays, isoDay } from '../scripts/supa';
+  import { DEMO, isOwner, listProgress, listJournal, saveProgress, addJournal, fmtMinutes, esc, type Progress, type Journal } from '../scripts/store';
 
-  type L = { c: string; s: string; t: string; n: string; ct: string };
-  const catalog = JSON.parse(document.getElementById('catalog')!.textContent!) as { lessons: L[]; paths: { slug: string; title: string; courses: string[] }[] };
-  const byKey = new Map(catalog.lessons.map((l) => [`${l.c}/${l.s}`, l]));
+  type L = { c: string; s: string; t: string; n: string };
+  type C = { slug: string; title: string; cat: string; total: number };
+  const catalog = JSON.parse(document.getElementById('catalog')!.textContent!) as { lessons: L[]; courses: C[]; paths: { slug: string; title: string; courses: string[] }[] };
+  const lessonBy = new Map(catalog.lessons.map((l) => [`${l.c}/${l.s}`, l]));
+  const courseBy = new Map(catalog.courses.map((c) => [c.slug, c]));
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const link = (c: string, s?: string) => (s ? `${base}/courses/${c}/${s}/` : `${base}/courses/${c}/`);
   const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
   const show = (id: string) => ['v-loading', 'v-signin', 'v-denied', 'v-dash'].forEach((v) => ($(v).hidden = v !== id));
-  const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
-  const lessonLink = (c: string, s: string) => `${base}/courses/${c}/${s}/`;
+  const day = (iso: string, o: Intl.DateTimeFormatOptions) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', o);
+  const hours = (m: number) => (Math.round((m / 60) * 10) / 10).toString();
+
+  let PROG: Progress[] = [];
+  let JR: Journal[] = [];
 
   $('sign-in').addEventListener('click', async () => {
     const { error } = await supa.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: location.origin + location.pathname } });
-    if (error) $('signin-error').textContent = /provider is not enabled/i.test(error.message)
-      ? 'GitHub sign-in is not switched on in Supabase yet. Follow the setup steps in the README.'
-      : `Sign-in failed: ${error.message}`;
+    if (error) $('signin-error').textContent = `Sign-in failed: ${error.message}`;
   });
   $('sign-out').addEventListener('click', () => { supa.auth.signOut(); });
 
   async function boot() {
-    if (location.hash === '#' || location.hash.includes('access_token')) history.replaceState(null, '', location.pathname);
-    const { data } = await supa.auth.getSession();
-    if (!data.session) { show('v-signin'); return; }
-    $('sign-out').hidden = false;
-    const owner = await getOwner();
-    if (!owner) { show('v-denied'); return; }
+    if (location.hash === '#' || location.hash.includes('access_token')) history.replaceState(null, '', location.pathname + location.search);
+    if (!DEMO) {
+      const { data } = await supa.auth.getSession();
+      if (!data.session) { show('v-signin'); return; }
+      $('sign-out').hidden = false;
+    }
+    if (!(await isOwner())) { show('v-denied'); return; }
     show('v-dash');
     await refresh();
   }
 
   async function refresh() {
+    [PROG, JR] = await Promise.all([listProgress(), listJournal()]);
+    render();
+  }
+
+  function render() {
     const now = new Date();
+    const today = isoDay();
     const h = now.getHours();
     $('part-of-day').textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
-    $('today-line').textContent = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
+    $('today-line').textContent = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
 
-    const since = addDays(-7 * 26);
-    const [{ data: progress }, { data: journal }] = await Promise.all([
-      supa.from('lesson_progress').select('*').order('updated_at', { ascending: false }),
-      supa.from('journal_entries').select('*').gte('day', since).order('created_at', { ascending: false }),
-    ]);
-    const prog = progress ?? [];
-    const jr = journal ?? [];
-    const today = isoDay();
-
-    // Reviews
-    const due = prog.filter((p) => p.status === 'done' && p.next_review_at && p.next_review_at <= today).sort((a, b) => a.next_review_at.localeCompare(b.next_review_at));
-    $('s-due').textContent = String(due.length);
-    $('s-due-sub').textContent = due.length ? `oldest from ${new Date(due[0].next_review_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : 'all caught up';
-    $('rq-count').textContent = due.length ? `${due.length} due` : '';
-    $('review-list').innerHTML = due.length ? due.slice(0, 8).map((p) => {
-      const l = byKey.get(`${p.course}/${p.lesson}`);
-      return `<li class="rrow"><div><a href="${lessonLink(p.course, p.lesson)}">${esc(l?.t ?? p.lesson)}</a><span class="small muted">${esc(l?.ct ?? p.course)} · ${l?.n ?? ''} · review ${p.review_step + 1}</span></div>
-        <div class="ra"><button class="btn small" data-again="${p.course}|${p.lesson}">Again</button><button class="btn small primary" data-got="${p.course}|${p.lesson}|${p.review_step}">Got it</button></div></li>`;
-    }).join('') : '<li class="emptyrow muted">Nothing to review. Finish a lesson and it will come back here tomorrow.</li>';
-
-    // Hours this week (Monday start) and streak
     const minutesBy = new Map<string, number>();
-    jr.forEach((e) => minutesBy.set(e.day, (minutesBy.get(e.day) ?? 0) + e.minutes));
+    JR.forEach((e) => minutesBy.set(e.day, (minutesBy.get(e.day) ?? 0) + e.minutes));
     const monday = new Date(now); monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-    const mondayIso = isoDay(monday);
-    const weekMin = jr.filter((e) => e.day >= mondayIso).reduce((s, e) => s + e.minutes, 0);
-    $('s-week').textContent = (Math.round((weekMin / 60) * 10) / 10).toString();
-    $('s-week-sub').textContent = `${jr.filter((e) => e.day >= mondayIso).length} sessions`;
-    let streak = 0; const d = new Date(now);
-    if (!minutesBy.get(isoDay(d))) d.setDate(d.getDate() - 1);
-    while (minutesBy.get(isoDay(d))) { streak++; d.setDate(d.getDate() - 1); }
+    const weekDays = Array.from({ length: 7 }, (_, i) => { const d = new Date(monday); d.setDate(monday.getDate() + i); return isoDay(d); });
+    const weekMin = weekDays.reduce((s, d) => s + (minutesBy.get(d) ?? 0), 0);
+
+    let streak = 0; const sd = new Date(now);
+    if (!minutesBy.get(isoDay(sd))) sd.setDate(sd.getDate() - 1);
+    while (minutesBy.get(isoDay(sd))) { streak++; sd.setDate(sd.getDate() - 1); }
     let best = 0, run = 0;
-    for (let i = 7 * 26; i >= 0; i--) { if (minutesBy.get(addDays(-i))) { run++; best = Math.max(best, run); } else run = 0; }
-    $('s-streak').textContent = String(streak);
-    $('s-best').textContent = `best: ${best}`;
+    for (let i = 7 * 52; i >= 0; i--) { if (minutesBy.get(addDays(-i))) { run++; best = Math.max(best, run); } else run = 0; }
 
-    // Lessons done
-    const done = prog.filter((p) => p.status === 'done');
-    $('s-done').textContent = String(done.length);
-    $('s-total').textContent = String(catalog.lessons.length);
-    $<HTMLElement>('s-done-bar').style.width = `${Math.min(100, (done.length / catalog.lessons.length) * 100)}%`;
+    const done = PROG.filter((p) => p.status === 'done');
+    const learning = PROG.filter((p) => p.status === 'learning');
+    const due = done.filter((p) => p.next_review_at && p.next_review_at <= today).sort((a, b) => a.next_review_at!.localeCompare(b.next_review_at!));
+    const doneSet = new Set(done.map((p) => `${p.course}/${p.lesson}`));
 
-    // Heatmap: 26 weeks, columns are weeks starting Monday
-    const start = new Date(monday); start.setDate(start.getDate() - 7 * 25);
-    let cells = '', total = 0;
-    for (let i = 0; i < 26 * 7; i++) {
-      const day = new Date(start); day.setDate(start.getDate() + i);
-      const key = isoDay(day);
-      const m = minutesBy.get(key) ?? 0; total += m;
-      const lvl = key > today ? 'future' : m === 0 ? 'l0' : m < 45 ? 'l1' : m < 120 ? 'l2' : 'l3';
-      cells += `<i class="${lvl}" title="${day.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}: ${m} min"></i>`;
+    $('summary').textContent = weekMin || streak || due.length
+      ? `${hours(weekMin)} h this week · ${streak}-day streak · ${due.length ? `${due.length} review${due.length > 1 ? 's' : ''} waiting` : 'no reviews due'}`
+      : 'A fresh start. Pick a lesson, mark it as learning, and log your first session.';
+
+    // Continue card
+    const cont = learning[0] ?? null;
+    const target = cont ? lessonBy.get(`${cont.course}/${cont.lesson}`) : (() => {
+      for (const p of catalog.paths[0].courses) { const l = catalog.lessons.find((x) => x.c === p && !doneSet.has(`${x.c}/${x.s}`)); if (l) return l; }
+      return catalog.lessons[0];
+    })();
+    if (target) {
+      const c = courseBy.get(target.c)!;
+      const cDone = catalog.lessons.filter((l) => l.c === c.slug && doneSet.has(`${l.c}/${l.s}`)).length;
+      $('continue').innerHTML = `
+        <span class="eyebrow ac">${cont ? 'Pick up where you left off' : 'Start here'}</span>
+        <h2 class="ct-title">${esc(target.t)}</h2>
+        <span class="ct-sub">${esc(c.title)} · lesson ${target.n}</span>
+        <div class="ct-prog"><span class="track"><i style="width:${(cDone / c.total) * 100}%"></i></span><span class="mono small">${cDone}/${c.total} in this course</span></div>
+        <div class="ct-actions"><a class="btn light" href="${link(target.c, target.s)}">${cont ? 'Continue lesson' : 'Open lesson'} →</a>${cont ? `<button class="btn ghost" type="button" data-done="${target.c}|${target.s}">Mark done</button>` : ''}</div>`;
     }
-    $('heat').innerHTML = cells;
-    $('heat-sum').textContent = `last 26 weeks · ${Math.round(total / 60)} h`;
+
+    // Reviews card
+    const next7 = Array.from({ length: 7 }, (_, i) => addDays(i));
+    const counts = next7.map((d, i) => done.filter((p) => p.next_review_at && (i === 0 ? p.next_review_at <= d : p.next_review_at === d)).length);
+    const maxC = Math.max(1, ...counts);
+    $('reviews-card').innerHTML = `
+      <span class="eyebrow">Reviews</span>
+      <div class="rv-num"><b>${due.length}</b><span>${due.length === 1 ? 'lesson due' : 'lessons due'}</span></div>
+      <div class="rv-week">${next7.map((d, i) => `<div class="rv-day${i === 0 ? ' today' : ''}" title="${counts[i]} due"><span class="rv-bar"><i style="height:${(counts[i] / maxC) * 100}%"></i></span><span class="mono">${i === 0 ? 'Today' : day(d, { weekday: 'narrow' })}</span></div>`).join('')}</div>
+      ${due.length ? `<a class="btn small amber" href="#queue">Start reviewing ↓</a>` : `<span class="small rv-ok">All caught up</span>`}`;
+
+    // Stats
+    $('st-week').innerHTML = `${hours(weekMin)}<small> h</small>`;
+    const maxDay = Math.max(30, ...weekDays.map((d) => minutesBy.get(d) ?? 0));
+    $('st-week-bars').innerHTML = weekDays.map((d) => `<i class="${d === today ? 'now' : ''}${d > today ? ' future' : ''}" style="height:${Math.max(8, ((minutesBy.get(d) ?? 0) / maxDay) * 100)}%"></i>`).join('');
+    $('st-streak').innerHTML = `${streak}<small> ${streak === 1 ? 'day' : 'days'}</small>`;
+    $('st-streak-dots').innerHTML = Array.from({ length: 7 }, (_, i) => addDays(i - 6)).map((d) => `<i class="${minutesBy.get(d) ? 'on' : ''}" title="${day(d, { weekday: 'short' })}"></i>`).join('');
+    $('st-best').textContent = `Best: ${best} days`;
+    const total = catalog.lessons.length;
+    $('st-done').innerHTML = `${done.length}<small> / ${total}</small>`;
+    $('st-done-sub').textContent = `${learning.length} in progress`;
+    $('st-done-ring').setAttribute('stroke-dasharray', `${Math.max(1.5, (done.length / total) * 163.4)} 164`);
+    const rated = PROG.filter((p) => p.confidence);
+    const avg = rated.length ? rated.reduce((s, p) => s + p.confidence!, 0) / rated.length : 0;
+    $('st-conf').innerHTML = rated.length ? `${avg.toFixed(1)}<small> / 5</small>` : '–';
+    $('st-conf-bar').innerHTML = [1, 2, 3, 4, 5].map((n) => `<i class="${n <= Math.round(avg) ? 'on' : ''}"></i>`).join('');
+    const weak = PROG.filter((p) => p.confidence && p.confidence <= 2);
+    $('st-weak').textContent = rated.length ? `${weak.length} weak spot${weak.length === 1 ? '' : 's'}` : 'Rate lessons as you go';
+
+    // Review queue
+    $('q-count').textContent = due.length ? `${due.length} due` : '';
+    $('q-list').innerHTML = due.length ? due.map((p) => {
+      const l = lessonBy.get(`${p.course}/${p.lesson}`);
+      const c = courseBy.get(p.course);
+      const late = p.next_review_at! < today ? Math.round((+new Date(today) - +new Date(p.next_review_at!)) / 864e5) : 0;
+      return `<li class="qcard cat-${c?.cat ?? 'math'}">
+        <div class="q-main">
+          <span class="q-course">${esc(c?.title ?? p.course)} · ${l?.n ?? ''}</span>
+          <a class="q-title" href="${link(p.course, p.lesson)}">${esc(l?.t ?? p.lesson)}</a>
+          <span class="ladder" aria-label="Review ${p.review_step + 1} of ${REVIEW_STEPS.length}">${REVIEW_STEPS.map((s, i) => `<i class="${i < p.review_step ? 'past' : i === p.review_step ? 'cur' : ''}">${s}d</i>`).join('')}</span>
+          ${late ? `<span class="late">${late} day${late > 1 ? 's' : ''} late</span>` : ''}
+        </div>
+        <div class="q-act"><button class="btn small" type="button" data-again="${p.course}|${p.lesson}">Again</button><button class="btn small primary" type="button" data-got="${p.course}|${p.lesson}|${p.review_step}">Got it</button></div>
+      </li>`;
+    }).join('') : `<li class="empty"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg><span>Nothing to review right now.</span><span class="small muted">Finish a lesson and it comes back here tomorrow, then after 3, 7, 21 and 60 days.</span></li>`;
+
+    // Week chart
+    const goal = Number(localStorage.getItem('weeklyGoalHours') || 10);
+    ($('goal') as HTMLInputElement).value = String(goal);
+    const maxW = Math.max(60, ...weekDays.map((d) => minutesBy.get(d) ?? 0));
+    $('week-chart').innerHTML = weekDays.map((d) => {
+      const m = minutesBy.get(d) ?? 0;
+      return `<div class="wd${d === today ? ' today' : ''}${d > today ? ' future' : ''}"><span class="wv mono">${m ? fmtMinutes(m).replace(' min', 'm').replace(' h', 'h') : ''}</span><span class="wb"><i style="height:${(m / maxW) * 100}%"></i></span><span class="wl">${day(d, { weekday: 'short' })}</span></div>`;
+    }).join('');
+    const pct = Math.min(100, (weekMin / 60 / goal) * 100);
+    $('goal-text').innerHTML = `<b>${hours(weekMin)} h</b> of ${goal} h goal${pct >= 100 ? ' · goal reached' : ''}`;
+    $('goal-fill').style.width = `${pct}%`;
 
     // Paths
-    const doneSet = new Set(done.map((p) => p.course + '/' + p.lesson));
     $('paths').innerHTML = catalog.paths.map((p) => {
       const ls = catalog.lessons.filter((l) => p.courses.includes(l.c));
       const n = ls.filter((l) => doneSet.has(`${l.c}/${l.s}`)).length;
-      const pct = ls.length ? Math.round((n / ls.length) * 100) : 0;
-      return `<div class="prow"><div class="pt"><span>${esc(p.title)}</span><span class="mono small muted">${n}/${ls.length} · ${pct}%</span></div><div class="meter soft"><i style="width:${pct}%"></i></div></div>`;
+      const r = ls.length ? n / ls.length : 0;
+      return `<a class="path" href="${base}/paths/#${p.slug}"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18" class="rt"></circle><circle cx="22" cy="22" r="18" class="rv" stroke-dasharray="${Math.max(1, r * 113.1)} 114"></circle></svg><span class="pinfo"><span class="ptitle">${esc(p.title)}</span><span class="small muted">${n} of ${ls.length} lessons · ${Math.round(r * 100)}%</span></span></a>`;
     }).join('');
 
-    const weak = prog.filter((p) => p.confidence && p.confidence <= 2);
-    $('weak').innerHTML = weak.length ? weak.map((p) => `<a class="wchip" href="${lessonLink(p.course, p.lesson)}">${esc(byKey.get(`${p.course}/${p.lesson}`)?.t ?? p.lesson)}</a>`).join('') : '<span class="small muted">None. Rate your confidence on each lesson page.</span>';
+    // Heatmap
+    const start = new Date(monday); start.setDate(start.getDate() - 7 * 51);
+    let cells = '', tot = 0, active = 0, months = '', lastM = -1;
+    for (let w = 0; w < 52; w++) {
+      const d0 = new Date(start); d0.setDate(start.getDate() + w * 7);
+      months += `<span>${d0.getMonth() !== lastM ? d0.toLocaleDateString('en-GB', { month: 'short' }) : ''}</span>`;
+      lastM = d0.getMonth();
+    }
+    for (let i = 0; i < 52 * 7; i++) {
+      const d = new Date(start); d.setDate(start.getDate() + i);
+      const key = isoDay(d);
+      const m = minutesBy.get(key) ?? 0; tot += m; if (m) active++;
+      const lvl = key > today ? 'future' : m === 0 ? 'l0' : m < 45 ? 'l1' : m < 120 ? 'l2' : 'l3';
+      cells += `<i class="${lvl}${key === today ? ' today' : ''}" title="${day(key, { day: 'numeric', month: 'short' })}: ${m ? fmtMinutes(m) : 'no study'}"></i>`;
+    }
+    $('months').innerHTML = months;
+    $('heat').innerHTML = cells;
+    $('heat-sum').textContent = `${Math.round(tot / 60)} h over ${active} days`;
 
-    const learning = prog.filter((p) => p.status === 'learning');
-    $('learning-list').innerHTML = learning.length ? learning.slice(0, 8).map((p) => {
-      const l = byKey.get(`${p.course}/${p.lesson}`);
-      return `<li class="rrow"><div><a href="${lessonLink(p.course, p.lesson)}">${esc(l?.t ?? p.lesson)}</a><span class="small muted">${esc(l?.ct ?? p.course)} · ${l?.n ?? ''}</span></div></li>`;
-    }).join('') : `<li class="emptyrow muted">Nothing in progress. <a href="${base}/courses/">Pick a lesson</a> and mark it as learning.</li>`;
+    // Courses in progress
+    const touched = [...new Set(PROG.map((p) => p.course))].map((s) => courseBy.get(s)).filter(Boolean) as C[];
+    $('courses').innerHTML = touched.length ? touched.map((c) => {
+      const d = catalog.lessons.filter((l) => l.c === c.slug && doneSet.has(`${l.c}/${l.s}`)).length;
+      const lr = learning.filter((p) => p.course === c.slug).length;
+      return `<li><a class="crow cat-${c.cat}" href="${link(c.slug)}"><span class="cdot"></span><span class="cinfo"><span class="ctitle">${esc(c.title)}</span><span class="small muted">${d}/${c.total} done${lr ? ` · ${lr} learning` : ''}</span></span><span class="track"><i style="width:${(d / c.total) * 100}%"></i></span><span class="mono small muted">${Math.round((d / c.total) * 100)}%</span></a></li>`;
+    }).join('') : `<li class="empty"><span>No courses started yet.</span><a class="small link" href="${base}/courses/">Browse courses →</a></li>`;
 
-    $('journal').innerHTML = jr.length ? jr.slice(0, 12).map((e) => {
-      const l = e.course && e.lesson ? byKey.get(`${e.course}/${e.lesson}`) : null;
-      return `<li class="jrow"><span class="mono small muted">${new Date(e.day).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</span><span class="jnote">${esc(e.note || (l ? l.t : 'Study session'))}${l ? ` <a class="small" href="${lessonLink(e.course, e.lesson)}">${esc(l.ct)} ${l.n}</a>` : ''}</span><span class="mono small ac">${Math.floor(e.minutes / 60) ? Math.floor(e.minutes / 60) + ' h ' : ''}${e.minutes % 60} min</span></li>`;
-    }).join('') : '<li class="emptyrow muted">No sessions yet. Log one, or finish a focus timer.</li>';
+    // Journal
+    $('journal').innerHTML = JR.length ? JR.slice(0, 8).map((e) => {
+      const l = e.course && e.lesson ? lessonBy.get(`${e.course}/${e.lesson}`) : null;
+      const c = e.course ? courseBy.get(e.course) : null;
+      const title = e.note || (l ? l.t : c ? c.title : 'Study session');
+      return `<li class="jrow"><span class="jdot"></span><div class="jbody"><span class="jmeta mono">${day(e.day, { day: 'numeric', month: 'short' })} · ${fmtMinutes(e.minutes)}</span><span class="jnote">${esc(title)}</span>${c ? `<a class="small link" href="${link(c.slug, l?.s)}">${esc(c.title)}${l ? ` ${l.n}` : ''}</a>` : ''}</div></li>`;
+    }).join('') : `<li class="empty"><span>No sessions yet.</span><span class="small muted">Log one, or finish a focus timer.</span></li>`;
+
+    $('weak').innerHTML = weak.length ? weak.map((p) => `<a class="wchip" href="${link(p.course, p.lesson)}">${esc(lessonBy.get(`${p.course}/${p.lesson}`)?.t ?? p.lesson)}</a>`).join('') : '<span class="small muted">None yet. Rate your confidence on each lesson page.</span>';
   }
 
+  // Actions
   document.addEventListener('click', async (e) => {
     const t = e.target as HTMLElement;
-    const got = t.closest<HTMLElement>('[data-got]');
-    const again = t.closest<HTMLElement>('[data-again]');
+    const got = t.closest<HTMLButtonElement>('[data-got]');
+    const again = t.closest<HTMLButtonElement>('[data-again]');
+    const markDone = t.closest<HTMLButtonElement>('[data-done]');
     if (got) {
       const [course, lesson, step] = got.dataset.got!.split('|');
       const s = Math.min(Number(step) + 1, REVIEW_STEPS.length - 1);
-      got.setAttribute('disabled', '');
-      await supa.from('lesson_progress').update({ review_step: s, next_review_at: addDays(REVIEW_STEPS[s]), updated_at: new Date().toISOString() }).eq('course', course).eq('lesson', lesson);
-      refresh();
+      got.closest('li')?.classList.add('leaving');
+      await saveProgress({ course, lesson, review_step: s, next_review_at: addDays(REVIEW_STEPS[s]) });
+      await refresh();
     } else if (again) {
       const [course, lesson] = again.dataset.again!.split('|');
-      again.setAttribute('disabled', '');
-      await supa.from('lesson_progress').update({ review_step: 0, next_review_at: addDays(1), updated_at: new Date().toISOString() }).eq('course', course).eq('lesson', lesson);
-      refresh();
+      again.closest('li')?.classList.add('leaving');
+      await saveProgress({ course, lesson, review_step: 0, next_review_at: addDays(1) });
+      await refresh();
+    } else if (markDone) {
+      const [course, lesson] = markDone.dataset.done!.split('|');
+      await saveProgress({ course, lesson, status: 'done', completed_at: new Date().toISOString(), review_step: 0, next_review_at: addDays(REVIEW_STEPS[0]) });
+      await refresh();
     }
   });
 
+  $('goal').addEventListener('change', () => {
+    const v = Math.max(1, Math.min(80, Number(($('goal') as HTMLInputElement).value) || 10));
+    try { localStorage.setItem('weeklyGoalHours', String(v)); } catch {}
+    render();
+  });
+
+  // Log dialog
+  const dlg = $('log-dialog') as HTMLDialogElement;
+  let logMin = 45;
+  $('open-log').addEventListener('click', () => { $('lf-status').textContent = ''; dlg.showModal(); });
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  dlg.querySelectorAll<HTMLButtonElement>('[data-min]').forEach((b) => b.addEventListener('click', () => {
+    logMin = Number(b.dataset.min);
+    dlg.querySelectorAll('[data-min]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  }));
   $('log-form').addEventListener('submit', async (e) => {
+    if ((e as SubmitEvent).submitter?.getAttribute('value') !== 'save') return;
     e.preventDefault();
-    const minutes = Number(($('lf-min') as HTMLInputElement).value);
-    if (!minutes) { $('lf-status').textContent = 'Enter the minutes you studied.'; return; }
     const note = ($('lf-note') as HTMLTextAreaElement).value.trim();
-    const { error } = await supa.from('journal_entries').insert({ minutes, note: note || null });
-    $('lf-status').textContent = error ? "Couldn't log that session. Try again." : `Logged ${minutes} min`;
-    if (!error) { ($('lf-note') as HTMLTextAreaElement).value = ''; refresh(); }
+    const course = ($('lf-course') as HTMLSelectElement).value || null;
+    try {
+      await addJournal({ minutes: logMin, note: note || null, course });
+      ($('lf-note') as HTMLTextAreaElement).value = '';
+      dlg.close();
+      await refresh();
+    } catch { $('lf-status').textContent = "Couldn't save. Check your connection."; }
   });
 
   // Focus timer
-  const FULL = 25 * 60;
-  let left = FULL, tick = 0;
+  let full = 25 * 60, left = full, tick = 0;
+  const C = 540.4;
   const arc = $('t-arc') as unknown as SVGCircleElement;
   const paint = () => {
     $('t-num').textContent = `${String(Math.floor(left / 60)).padStart(2, '0')}:${String(left % 60).padStart(2, '0')}`;
-    arc.setAttribute('stroke-dashoffset', String(465 * (1 - left / FULL)));
+    arc.setAttribute('stroke-dashoffset', String(C * (1 - left / full)));
   };
+  const setRunning = (on: boolean) => { $('focus').classList.toggle('running', on); $('t-on').textContent = on ? 'Focusing…' : left < full ? 'Paused' : 'Ready'; };
+  document.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((b) => b.addEventListener('click', () => {
+    if (tick) return;
+    full = left = Number(b.dataset.preset) * 60;
+    document.querySelectorAll('[data-preset]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    paint(); setRunning(false);
+  }));
   $('t-start').addEventListener('click', () => {
-    if (tick) { clearInterval(tick); tick = 0; $('t-start').textContent = 'Resume'; return; }
-    $('t-start').textContent = 'Pause';
+    if (tick) { clearInterval(tick); tick = 0; $('t-start').textContent = 'Resume'; setRunning(false); return; }
+    $('t-start').textContent = 'Pause'; setRunning(true);
     tick = window.setInterval(async () => {
       left--; paint();
       if (left <= 0) {
-        clearInterval(tick); tick = 0; left = FULL; paint(); $('t-start').textContent = 'Start';
-        await supa.from('journal_entries').insert({ minutes: 25, note: 'Focus session' });
-        refresh();
+        clearInterval(tick); tick = 0;
+        const mins = full / 60;
+        left = full; paint(); $('t-start').textContent = 'Start'; setRunning(false);
+        $('t-on').textContent = `Logged ${mins} min`;
+        await addJournal({ minutes: mins, note: 'Focus session' });
+        await refresh();
       }
     }, 1000);
   });
-  $('t-reset').addEventListener('click', () => { clearInterval(tick); tick = 0; left = FULL; paint(); $('t-start').textContent = 'Start'; });
+  $('t-reset').addEventListener('click', () => { clearInterval(tick); tick = 0; left = full; paint(); $('t-start').textContent = 'Start'; setRunning(false); });
 
   // Supabase emits SIGNED_IN on every load once a session exists, so boot once instead of reloading.
   // Supabase calls are deferred out of the callback to avoid its auth lock deadlock.
-  let booted = false;
-  supa.auth.onAuthStateChange((ev) => {
-    if (ev === 'SIGNED_OUT') { location.reload(); return; }
-    if (!booted && (ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN')) {
-      booted = true;
-      setTimeout(boot, 0);
-    }
-  });
+  if (DEMO) boot();
+  else {
+    let booted = false;
+    supa.auth.onAuthStateChange((ev) => {
+      if (ev === 'SIGNED_OUT') { location.reload(); return; }
+      if (!booted && (ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN')) { booted = true; setTimeout(boot, 0); }
+    });
+  }
 </script>
 
 <style>
-  .page { padding-block: 32px 40px; }
-  .bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px; }
-  .lock { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; background: var(--surface); }
-  .center { min-height: 50vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; }
-  .center h1 { font-size: 40px; letter-spacing: -0.04em; }
+  .page { padding-block: 28px 40px; }
+  .bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .lock { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; background: var(--surface); }
+  .center { min-height: 52vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; }
+  .center h1 { font-size: 44px; letter-spacing: -0.04em; }
+  .spinner { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--sage); animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
   .small { font-size: 13px; }
-  .hello { margin-bottom: 24px; }
-  .hello h1 { font-size: clamp(34px, 5vw, 44px); letter-spacing: -0.04em; margin-top: 6px; }
-  .hello .mono { font-size: 12px; }
-  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
-  .stat b { font-size: 34px; font-weight: 600; letter-spacing: -0.04em; line-height: 1.1; }
-  .stat small { font-size: 16px; color: var(--muted); font-weight: 500; }
-  #s-due-sub { color: var(--amber); }
-  .stat.ink { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
-  .stat.ink small { color: inherit; opacity: .6; }
-  .meter { height: 5px; border-radius: 5px; background: color-mix(in srgb, currentColor 18%, transparent); margin-top: 8px; }
-  .meter i { display: block; height: 5px; border-radius: 5px; background: var(--sage); }
-  .meter.soft { background: var(--line-soft); }
-  .two { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; margin-top: 16px; }
-  .box { padding: 20px 22px; }
-  .box h2 { font-size: 18px; letter-spacing: -0.02em; }
-  .bh { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-  .rows { list-style: none; margin: 10px 0 0; padding: 0; }
-  :global(.rrow) { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line-soft); }
-  :global(.rrow > div:first-child) { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  :global(.rrow a) { font-weight: 500; }
-  :global(.ra) { display: flex; gap: 6px; flex: none; }
-  :global(.emptyrow) { padding: 14px 0; border-top: 1px solid var(--line-soft); font-size: 14px; }
-  :global(.emptyrow a) { color: var(--accent); }
-  .timer { background: var(--sage-soft); border-radius: 18px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
-  .timer .eyebrow { align-self: flex-start; }
+  .hello { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 26px; }
+  .date { font-size: 12px; }
+  .hello h1 { font-size: clamp(36px, 5vw, 50px); letter-spacing: -0.045em; margin: 6px 0 8px; line-height: 1.05; }
+  .summary { font-size: 15.5px; }
+  .hello-actions { display: flex; gap: 10px; }
+
+  .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+  .s5 { grid-column: span 5; } .s7 { grid-column: span 7; } .s12 { grid-column: span 12; }
+  .tile { border-radius: 22px; padding: 22px 24px; min-width: 0; }
+  .card { background: var(--surface); border: 1px solid var(--line); }
+  .th { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .th h2 { font-size: 18px; letter-spacing: -0.02em; }
+  .hint { margin: -6px 0 12px; line-height: 1.5; max-width: 60ch; }
   .ac { color: var(--sage); }
-  .t-track { stroke: color-mix(in srgb, var(--sage) 22%, transparent); }
-  .t-arc { stroke: var(--sage); transition: stroke-dashoffset 1s linear; }
-  .t-num { font-family: var(--f-sans); font-weight: 600; font-size: 34px; fill: var(--fg); }
+  :global(.link) { color: var(--accent); }
+
+  .continue { background: var(--deep); color: var(--on-deep); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px); background-size: 18px 18px; }
+  .continue :global(.eyebrow) { color: var(--deep-accent); }
+  .continue :global(.ct-title) { font-family: var(--f-serif); font-weight: 400; font-size: clamp(26px, 3vw, 34px); line-height: 1.15; letter-spacing: -0.015em; max-width: 22ch; }
+  .continue :global(.ct-sub) { font-size: 14px; opacity: .7; }
+  .continue :global(.ct-prog) { display: flex; align-items: center; gap: 12px; margin-top: 6px; opacity: .85; }
+  .continue :global(.ct-prog .track) { flex: 1; max-width: 260px; background: rgba(255,255,255,.16); }
+  .continue :global(.ct-prog .track i) { background: var(--deep-accent); }
+  .continue :global(.ct-actions) { display: flex; gap: 10px; margin-top: auto; padding-top: 12px; flex-wrap: wrap; }
+  :global(.btn.light) { background: var(--on-deep); color: #15181A; border-color: var(--on-deep); }
+  :global(.btn.light:hover) { color: #15181A; opacity: .9; }
+  :global(.btn.ghost) { background: transparent; color: var(--on-deep); border-color: rgba(255,255,255,.28); }
+  :global(.btn.ghost:hover) { color: var(--on-deep); border-color: var(--on-deep); }
+
+  .reviews { background: var(--amber-soft); display: flex; flex-direction: column; gap: 14px; }
+  .reviews :global(.eyebrow) { color: var(--amber); }
+  .reviews :global(.rv-num) { display: flex; align-items: baseline; gap: 10px; color: var(--amber); }
+  .reviews :global(.rv-num b) { font-size: 52px; font-weight: 600; letter-spacing: -0.05em; line-height: 1; color: var(--fg); }
+  .reviews :global(.rv-week) { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; height: 74px; }
+  .reviews :global(.rv-day) { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10.5px; color: var(--amber); }
+  .reviews :global(.rv-bar) { flex: 1; width: 100%; max-width: 26px; border-radius: 6px; background: color-mix(in srgb, var(--amber) 14%, transparent); display: flex; align-items: flex-end; overflow: hidden; }
+  .reviews :global(.rv-bar i) { display: block; width: 100%; background: color-mix(in srgb, var(--amber) 55%, transparent); border-radius: 6px; }
+  .reviews :global(.rv-day.today .rv-bar i) { background: var(--amber); }
+  .reviews :global(.btn.amber) { align-self: flex-start; background: var(--amber); color: var(--amber-soft); border-color: var(--amber); }
+  .reviews :global(.rv-ok) { color: var(--amber); }
+
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .sl { font-size: 13px; color: var(--muted); }
+  .stat b { font-size: 34px; font-weight: 600; letter-spacing: -0.04em; line-height: 1.05; }
+  .stat :global(small) { font-size: 15px; color: var(--muted); font-weight: 500; letter-spacing: -0.01em; }
+  .sub { font-size: 12.5px; color: var(--muted); }
+  .mini { display: flex; align-items: flex-end; gap: 4px; height: 30px; margin-top: 4px; }
+  .mini :global(i) { flex: 1; border-radius: 4px; background: color-mix(in srgb, var(--sage) 35%, var(--line-soft)); min-height: 3px; }
+  .mini :global(i.now) { background: var(--sage); }
+  .mini :global(i.future) { background: var(--line-soft); }
+  .dots { display: flex; gap: 5px; margin-top: 6px; }
+  .dots :global(i) { width: 14px; height: 14px; border-radius: 50%; background: var(--line-soft); }
+  .dots :global(i.on) { background: var(--sage); }
+  .ring-stat { flex-direction: row; justify-content: space-between; align-items: center; }
+  .ring-stat > div { display: flex; flex-direction: column; gap: 6px; }
+  .ring { width: 64px; height: 64px; transform: rotate(-90deg); flex: none; }
+  .ring .rt, :global(.path .rt) { fill: none; stroke: var(--line-soft); stroke-width: 7; }
+  .ring .rv, :global(.path .rv) { fill: none; stroke: var(--sage); stroke-width: 7; stroke-linecap: round; transition: stroke-dasharray .8s; }
+  .confbar { display: flex; gap: 4px; margin-top: 6px; }
+  .confbar :global(i) { flex: 1; height: 6px; border-radius: 3px; background: var(--line-soft); }
+  .confbar :global(i.on) { background: var(--sage); }
+
+  .qlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  :global(.qcard) { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--bg); border-left: 0; position: relative; transition: opacity .25s, transform .25s; }
+  :global(.qcard::before) { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 3px; background: var(--c); }
+  :global(.qcard.leaving) { opacity: 0; transform: translateX(16px); }
+  :global(.q-main) { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding-left: 4px; }
+  :global(.q-course) { font-size: 12px; color: var(--c); font-family: var(--f-mono); }
+  :global(.q-title) { font-weight: 500; font-size: 15.5px; }
+  :global(.ladder) { display: flex; gap: 4px; margin-top: 4px; }
+  :global(.ladder i) { font-style: normal; font-family: var(--f-mono); font-size: 10px; padding: 2px 6px; border-radius: 5px; background: var(--line-soft); color: var(--muted); }
+  :global(.ladder i.past) { background: var(--sage-soft); color: var(--sage); }
+  :global(.ladder i.cur) { background: var(--sage); color: var(--surface); }
+  :global(.late) { font-size: 12px; color: var(--coral); }
+  :global(.q-act) { display: flex; gap: 6px; flex: none; }
+  :global(.empty) { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 26px 12px; border: 1px dashed var(--line); border-radius: 16px; color: var(--muted); list-style: none; }
+  :global(.empty svg) { color: var(--sage); }
+
+  .timer { background: var(--sage-soft); display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .timer .th { width: 100%; margin-bottom: 0; }
+  .presets { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: color-mix(in srgb, var(--sage) 12%, transparent); }
+  .presets button { border: 0; background: transparent; font-family: var(--f-mono); font-size: 12px; padding: 5px 10px; border-radius: 7px; cursor: pointer; color: var(--sage); }
+  .presets button[aria-pressed='true'] { background: var(--surface); color: var(--fg); }
+  .clock { position: relative; width: 190px; height: 190px; }
+  .clock svg { width: 100%; height: 100%; }
+  .ct { fill: none; stroke: color-mix(in srgb, var(--sage) 20%, transparent); stroke-width: 10; }
+  .cv { fill: none; stroke: var(--sage); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+  .clock-in { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  .t-num { font-size: 40px; font-weight: 500; letter-spacing: -0.02em; color: var(--fg); }
+  .timer.running .clock { animation: breathe 4s ease-in-out infinite; }
+  @keyframes breathe { 50% { transform: scale(1.02); } }
   .trow { display: flex; gap: 8px; }
-  .heat { display: grid; grid-template-rows: repeat(7, 12px); grid-auto-flow: column; grid-auto-columns: 12px; gap: 4px; margin-top: 16px; overflow-x: auto; padding-bottom: 4px; }
-  :global(.heat i) { width: 12px; height: 12px; border-radius: 3px; display: block; }
+  .center-t { text-align: center; color: var(--sage); }
+
+  .goal input { width: 52px; border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px; background: var(--bg); font-family: var(--f-mono); font-size: 13px; text-align: center; }
+  .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; height: 170px; }
+  :global(.wd) { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+  :global(.wv) { font-size: 11px; color: var(--muted); height: 14px; white-space: nowrap; }
+  :global(.wb) { flex: 1; width: 100%; max-width: 44px; background: var(--line-soft); border-radius: 10px; display: flex; align-items: flex-end; overflow: hidden; }
+  :global(.wb i) { display: block; width: 100%; background: color-mix(in srgb, var(--sage) 60%, var(--line-soft)); border-radius: 10px; transition: height .6s; }
+  :global(.wd.today .wb i) { background: var(--sage); }
+  :global(.wd.today .wl) { color: var(--fg); font-weight: 600; }
+  :global(.wd.future .wb) { background: color-mix(in srgb, var(--line-soft) 45%, transparent); }
+  :global(.wd.future .wl) { opacity: .6; }
+  :global(.wl) { font-size: 12px; color: var(--muted); }
+  .goalbar { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .track { display: block; height: 6px; border-radius: 6px; background: var(--line-soft); overflow: hidden; }
+  .track i, :global(.track i) { display: block; height: 6px; border-radius: 6px; background: var(--sage); transition: width .6s; }
+
+  .paths { display: flex; flex-direction: column; gap: 10px; }
+  :global(.path) { display: flex; align-items: center; gap: 14px; padding: 8px; margin: 0 -8px; border-radius: 12px; }
+  :global(.path:hover) { background: var(--sunk); color: var(--fg); }
+  :global(.path svg) { width: 46px; height: 46px; transform: rotate(-90deg); flex: none; }
+  :global(.path .rt), :global(.path .rv) { stroke-width: 5; }
+  :global(.pinfo) { display: flex; flex-direction: column; gap: 2px; }
+  :global(.ptitle) { font-weight: 500; }
+
+  .heat-wrap { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 6px; }
+  .wdays { display: grid; grid-template-rows: repeat(7, minmax(0, 1fr)); row-gap: 4px; font-size: 10.5px; margin-top: 21px; align-items: center; }
+  .heat-col { display: flex; flex-direction: column; gap: 5px; min-width: 700px; }
+  .months { display: grid; grid-template-columns: repeat(52, minmax(0, 1fr)); column-gap: 4px; height: 16px; font-size: 10.5px; white-space: nowrap; }
+  .heat { display: grid; grid-template-columns: repeat(52, minmax(0, 1fr)); grid-template-rows: repeat(7, auto); grid-auto-flow: column; gap: 4px; }
+  :global(.heat i) { aspect-ratio: 1; border-radius: 3px; display: block; }
   :global(.heat .l0), .legend .l0 { background: var(--line-soft); }
   :global(.heat .l1), .legend .l1 { background: color-mix(in srgb, var(--sage) 35%, var(--line-soft)); }
   :global(.heat .l2), .legend .l2 { background: color-mix(in srgb, var(--sage) 65%, var(--line-soft)); }
   :global(.heat .l3), .legend .l3 { background: var(--sage); }
   :global(.heat .future) { background: transparent; }
-  .legend { display: flex; justify-content: flex-end; align-items: center; gap: 5px; margin-top: 10px; }
-  .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
-  .paths { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
-  :global(.pt) { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; }
-  :global(.meter.soft) { margin-top: 6px; }
-  .weak { border-top: 1px solid var(--line-soft); margin-top: 18px; padding-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+  :global(.heat .today) { outline: 2px solid var(--sage); outline-offset: 1px; }
+  .legend { display: flex; justify-content: flex-end; align-items: center; gap: 5px; margin-top: 8px; }
+  .legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+  .clist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  :global(.crow) { display: grid; grid-template-columns: 10px minmax(0, 1fr) minmax(80px, 160px) 40px; gap: 14px; align-items: center; padding: 10px; margin: 0 -10px; border-radius: 12px; }
+  :global(.crow:hover) { background: var(--sunk); color: var(--fg); }
+  :global(.cdot) { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  :global(.cinfo) { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  :global(.ctitle) { font-weight: 500; }
+  :global(.crow .track i) { background: var(--c); }
+  :global(.crow .mono) { text-align: right; }
+
+  .journal { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  :global(.jrow) { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 12px; padding-bottom: 14px; position: relative; }
+  :global(.jrow:not(:last-child)::before) { content: ''; position: absolute; left: 6px; top: 16px; bottom: 0; width: 1px; background: var(--line); }
+  :global(.jdot) { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--sage); background: var(--surface); margin-top: 3px; position: relative; z-index: 1; }
+  :global(.jbody) { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  :global(.jmeta) { font-size: 11.5px; color: var(--muted); }
+  :global(.jnote) { font-family: var(--f-serif); font-size: 16.5px; line-height: 1.45; }
+  .weak-box { border-top: 1px solid var(--line-soft); margin-top: 6px; padding-top: 14px; display: flex; flex-direction: column; gap: 10px; }
   .chips { display: flex; gap: 8px; flex-wrap: wrap; }
-  :global(.wchip) { font-size: 12px; background: var(--coral-soft); color: var(--coral); border-radius: 999px; padding: 5px 10px; }
-  .logf { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; align-items: flex-start; }
-  .logf label { font-size: 13px; color: var(--muted); }
-  .logf input, .logf textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; background: var(--bg); font-size: 14px; }
-  .logf input { width: 110px; font-family: var(--f-mono); }
-  :global(.jrow) { display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line-soft); align-items: baseline; }
-  :global(.jnote) { font-family: var(--f-serif); font-size: 16.5px; line-height: 1.5; }
-  :global(.jnote a) { font-family: var(--f-sans); color: var(--accent); margin-left: 6px; }
-  .journal { margin-top: 6px; }
-  section.card.box:last-child { margin-top: 16px; }
-  @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .two { grid-template-columns: minmax(0, 1fr); } }
+  :global(.wchip) { font-size: 12.5px; background: var(--coral-soft); color: var(--coral); border-radius: 999px; padding: 5px 11px; }
+  :global(.wchip:hover) { color: var(--coral); opacity: .85; }
+
+  .logd { width: min(480px, calc(100vw - 32px)); border: 1px solid var(--line); border-radius: 22px; padding: 0; background: var(--surface); color: var(--fg); box-shadow: 0 30px 80px -30px rgba(0,0,0,.4); }
+  .logd::backdrop { background: rgba(15, 18, 17, 0.35); backdrop-filter: blur(3px); }
+  .logf { padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; margin: 0; }
+  .x { width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line); background: transparent; font-size: 20px; line-height: 1; cursor: pointer; color: var(--muted); }
+  .mins { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin-bottom: 6px; }
+  .mins button { height: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); font-family: var(--f-mono); font-size: 13px; cursor: pointer; }
+  .mins button[aria-pressed='true'] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .logf select, .logf textarea { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--bg); font-size: 14.5px; margin-bottom: 6px; }
+  .logf textarea { font-family: var(--f-serif); font-size: 16px; line-height: 1.5; resize: vertical; }
+  .frow { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 4px; }
+
+  @media (max-width: 1000px) {
+    .s5, .s7 { grid-column: span 12; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .tile { padding: 18px; }
+    .stat b { font-size: 28px; }
+    .hello-actions { width: 100%; }
+    .hello-actions .btn { flex: 1; justify-content: center; }
+    :global(.qcard) { flex-direction: column; align-items: stretch; }
+    :global(.q-act .btn) { flex: 1; justify-content: center; }
+    :global(.crow) { grid-template-columns: 10px minmax(0, 1fr) 40px; }
+    :global(.crow .track) { display: none; }
+    .mins { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
 </style>

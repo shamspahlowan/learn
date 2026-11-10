@@ -9,6 +9,7 @@ export default defineConfig({
   site: 'https://shamspahlowan.github.io',
   base: '/learn',
   trailingSlash: 'always',
+  devToolbar: { enabled: false },
   integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/tracker/') })],
   markdown: {
     remarkPlugins: [remarkMath],

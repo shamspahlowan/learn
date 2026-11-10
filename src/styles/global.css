@@ -10,6 +10,9 @@
   --ink: #15181A;
   --on-ink: #F8F8F5;
   --dots: #DADAD3;
+  --deep: #15181A;
+  --on-deep: #F1F3F2;
+  --deep-accent: #7FC2B0;
 
   --sage: #2E6A5E;   --sage-soft: #E1EEE9;
   --indigo: #3D4694; --indigo-soft: #E5E7F7;
@@ -35,7 +38,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --bg: #0F1211; --surface: #151A19; --sunk: #1A201E; --fg: #E7EAE8; --muted: #9AA29E;
-    --line: #262C2A; --line-soft: #1F2523; --ink: #E7EAE8; --on-ink: #0F1211; --dots: #222826;
+    --line: #262C2A; --line-soft: #1F2523; --ink: #E7EAE8; --on-ink: #0F1211; --dots: #222826; --deep: #1B2220;
     --sage: #7FC2B0; --sage-soft: #17302A; --indigo: #A3ABEE; --indigo-soft: #1E2240;
     --amber: #E7B66B; --amber-soft: #33280F; --plum: #D9A2CF; --plum-soft: #2E1A2B;
     --slate: #AEBBC8; --slate-soft: #1E252C; --coral: #F0A08A; --coral-soft: #351C14;
@@ -44,7 +47,7 @@
 }
 :root[data-theme='dark'] {
   --bg: #0F1211; --surface: #151A19; --sunk: #1A201E; --fg: #E7EAE8; --muted: #9AA29E;
-  --line: #262C2A; --line-soft: #1F2523; --ink: #E7EAE8; --on-ink: #0F1211; --dots: #222826;
+  --line: #262C2A; --line-soft: #1F2523; --ink: #E7EAE8; --on-ink: #0F1211; --dots: #222826; --deep: #1B2220;
   --sage: #7FC2B0; --sage-soft: #17302A; --indigo: #A3ABEE; --indigo-soft: #1E2240;
   --amber: #E7B66B; --amber-soft: #33280F; --plum: #D9A2CF; --plum-soft: #2E1A2B;
   --slate: #AEBBC8; --slate-soft: #1E252C; --coral: #F0A08A; --coral-soft: #351C14;

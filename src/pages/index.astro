@@ -149,12 +149,11 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 
   .num { color: var(--c); font-size: 12px; }
   .cnt { margin-left: auto; font-size: 12px; }
   .main .link-accent { margin-top: auto; }
-  .tile.dark { grid-column: span 3; background: var(--ink); color: var(--on-ink); }
-  .ac { color: var(--sage); }
-  :root[data-theme='dark'] .tile.dark .ac { color: #2E6A5E; }
+  .tile.dark { grid-column: span 3; background: var(--deep); color: var(--on-deep); border: 1px solid var(--line); }
+  .ac { color: var(--deep-accent); }
   .paths { list-style: none; margin: 4px 0 0; padding: 0; }
-  .paths a { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid color-mix(in srgb, var(--on-ink) 14%, transparent); font-size: 17px; font-weight: 500; }
-  .paths a:hover { color: var(--on-ink); opacity: .8; }
+  .paths a { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,.12); font-size: 17px; font-weight: 500; }
+  .paths a:hover { color: var(--on-deep); opacity: .8; }
   .paths .mono { font-size: 12px; opacity: .7; font-weight: 400; }
   .tile.post { grid-column: span 3; background: var(--indigo-soft); }
   .tile.post h3 { font-family: var(--f-serif); font-weight: 400; font-size: 26px; line-height: 1.2; letter-spacing: -0.01em; color: var(--fg); }

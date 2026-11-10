@@ -48,7 +48,7 @@ const prompt = `Act as a senior ML engineer interviewing me. Topic: "${lesson.ti
   <div class="progress" aria-hidden="true"><i id="read-bar"></i></div>
   <div class="wrap cols">
     <aside class="outline" aria-label="Lessons in this module">
-      <a class="eyebrow back" href={url(`/courses/${course.slug}/`)}>← {course.title}</a>
+      <a class="back" href={url(`/courses/${course.slug}/`)}><span aria-hidden="true">←</span> {course.title}</a>
       <span class="eyebrow mtitle">Module {lesson.moduleIndex + 1} · {mod.title}</span>
       <ol>
         {siblings.map((s) => (
@@ -111,28 +111,40 @@ const prompt = `Act as a senior ML engineer interviewing me. Topic: "${lesson.ti
         </div>
       )}
 
-      <div class="owner card" id="owner-panel" hidden data-course={course.slug} data-lesson={lesson.slug}>
-        <div class="o-head"><span class="eyebrow">Your progress</span><span class="lock mono">private</span></div>
-        <div class="seg" role="group" aria-label="Lesson status">
-          <button type="button" data-status="none">Not started</button>
-          <button type="button" data-status="learning">Learning</button>
-          <button type="button" data-status="done">Done</button>
+      <div class="owner card" id="owner-panel" hidden data-course={course.slug} data-lesson={lesson.slug} data-pagefind-ignore>
+        <div class="o-head">
+          <span class="o-title">Your progress</span>
+          <span class="saved mono" id="owner-status" aria-live="polite"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>private</span>
         </div>
-        <div class="conf">
-          <span class="small muted">Confidence</span>
-          <div class="stars" role="group" aria-label="Confidence from 1 to 5">
-            {[1, 2, 3, 4, 5].map((n) => <button type="button" data-conf={n} aria-label={`Confidence ${n}`}>{n}</button>)}
+
+        <div class="o-sec">
+          <span class="o-label">Status</span>
+          <div class="seg" role="group" aria-label="Lesson status">
+            <button type="button" data-status="none"><i class="ic ic-none" aria-hidden="true"></i>To do</button>
+            <button type="button" data-status="learning"><i class="ic ic-learning" aria-hidden="true"></i>Learning</button>
+            <button type="button" data-status="done"><i class="ic ic-done" aria-hidden="true"></i>Done</button>
+          </div>
+          <p class="review" id="review-line" hidden></p>
+        </div>
+
+        <div class="o-sec">
+          <span class="o-label">Confidence <span class="conf-word" id="conf-word"></span></span>
+          <div class="conf" role="group" aria-label="Confidence from 1 to 5">
+            {[1, 2, 3, 4, 5].map((n) => <button type="button" data-conf={n} aria-label={`Confidence ${n} of 5`}><span class="mono">{n}</span></button>)}
           </div>
         </div>
-        <p class="small muted" id="review-line"></p>
-        <label for="private-note" class="small muted">Private notes (only you can see these)</label>
-        <textarea id="private-note" rows="5" placeholder="What clicked, what's still fuzzy, what to ask a senior"></textarea>
-        <div class="log">
-          <label for="log-min" class="small muted">Log minutes</label>
-          <input id="log-min" type="number" min="5" max="600" step="5" value="30" />
-          <button type="button" class="btn small" id="log-btn">Log</button>
+
+        <div class="o-sec">
+          <label for="private-note" class="o-label">Private notes</label>
+          <textarea id="private-note" rows="5" placeholder="What clicked, what's still fuzzy, what to ask a senior"></textarea>
         </div>
-        <span class="small muted" id="owner-status" aria-live="polite"></span>
+
+        <div class="o-sec">
+          <span class="o-label">Log study time</span>
+          <div class="quick" role="group" aria-label="Log study minutes">
+            {[15, 30, 45, 60].map((m) => <button type="button" data-log={m}>{m}m</button>)}
+          </div>
+        </div>
       </div>
     </aside>
   </div>
@@ -161,89 +173,102 @@ const prompt = `Act as a senior ML engineer interviewing me. Topic: "${lesson.ti
 </script>
 
 <script>
-  import { getOwner, mightBeSignedIn, supa, REVIEW_STEPS, addDays, isoDay } from '../../../scripts/supa';
+  import { isOwner, listProgress, saveProgress, clearProgress, getNote, saveNote, addJournal, type Progress } from '../../../scripts/store';
+  import { REVIEW_STEPS, addDays, isoDay } from '../../../scripts/supa';
+
+  const WORDS = ['', 'Lost', 'Shaky', 'Getting there', 'Solid', 'Could teach it'];
 
   (async () => {
-    if (!mightBeSignedIn()) return;
-    const owner = await getOwner();
-    if (!owner) return;
+    if (!(await isOwner())) return;
     const panel = document.getElementById('owner-panel')!;
     const course = panel.dataset.course!;
     const lesson = panel.dataset.lesson!;
-    const say = (t: string) => { document.getElementById('owner-status')!.textContent = t; };
+    const statusEl = document.getElementById('owner-status')!;
+    const lockHtml = statusEl.innerHTML;
+    let flashTimer = 0;
+    const say = (t: string, bad = false) => {
+      clearTimeout(flashTimer);
+      statusEl.textContent = t;
+      statusEl.classList.toggle('bad', bad);
+      statusEl.classList.add('on');
+      flashTimer = window.setTimeout(() => { statusEl.innerHTML = lockHtml; statusEl.classList.remove('on', 'bad'); }, 1800);
+    };
     const note = document.getElementById('private-note') as HTMLTextAreaElement;
     const reviewLine = document.getElementById('review-line')!;
     panel.hidden = false;
 
-    let row: any = null;
-    const [{ data: p }, { data: n }, { data: siblings }] = await Promise.all([
-      supa.from('lesson_progress').select('*').eq('course', course).eq('lesson', lesson).maybeSingle(),
-      supa.from('lesson_notes').select('body').eq('course', course).eq('lesson', lesson).maybeSingle(),
-      supa.from('lesson_progress').select('lesson,status').eq('course', course),
-    ]);
-    row = p;
-    note.value = n?.body ?? '';
-    for (const s of siblings ?? []) {
+    const [rows, body] = await Promise.all([listProgress(course), getNote(course, lesson)]);
+    let row: Progress | null = rows.find((r) => r.lesson === lesson) ?? null;
+    note.value = body;
+    for (const s of rows) {
       const a = document.querySelector<HTMLElement>(`.outline [data-lesson="${s.lesson}"]`);
       if (a) a.dataset.status = s.status;
     }
 
     function paint() {
       const status = row?.status ?? 'none';
+      panel.dataset.state = status;
       panel.querySelectorAll<HTMLButtonElement>('[data-status]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.status === status)));
-      panel.querySelectorAll<HTMLButtonElement>('[data-conf]').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.conf) <= (row?.confidence ?? 0))));
-      reviewLine.textContent = row?.status === 'done' && row?.next_review_at
-        ? (row.next_review_at <= isoDay() ? 'Review due today.' : `Next review ${new Date(row.next_review_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}.`)
-        : '';
+      const conf = row?.confidence ?? 0;
+      panel.querySelectorAll<HTMLButtonElement>('[data-conf]').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.conf) <= conf)));
+      document.getElementById('conf-word')!.textContent = conf ? `· ${WORDS[conf]}` : '';
+      const mine = document.querySelector<HTMLElement>(`.outline [data-lesson="${lesson}"]`);
+      if (mine) { if (row) mine.dataset.status = row.status; else delete mine.dataset.status; }
+      if (row?.status === 'done' && row.next_review_at) {
+        const due = row.next_review_at <= isoDay();
+        reviewLine.hidden = false;
+        reviewLine.classList.toggle('due', due);
+        reviewLine.textContent = due ? 'Review due today. Answer the self-check, then mark it on the tracker.' : `Next review ${new Date(row.next_review_at).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}`;
+      } else reviewLine.hidden = true;
     }
     paint();
 
-    async function save(patch: Record<string, unknown>) {
-      say('Saving…');
-      if (patch.status === 'none') {
-        await supa.from('lesson_progress').delete().eq('course', course).eq('lesson', lesson);
-        row = null; paint(); say('Saved'); return;
-      }
-      const next = { ...(row ?? {}), course, lesson, ...patch, updated_at: new Date().toISOString() };
-      delete (next as any).user_id;
-      const { data, error } = await supa.from('lesson_progress').upsert(next, { onConflict: 'user_id,course,lesson' }).select().single();
-      if (error) { say("Couldn't save. Check your connection and try again."); return; }
-      row = data; paint(); say('Saved');
+    async function save(patch: Partial<Progress> | 'clear') {
+      try {
+        if (patch === 'clear') { await clearProgress(course, lesson); row = null; }
+        else row = await saveProgress({ ...(row ?? {}), ...patch, course, lesson });
+        paint(); say('Saved');
+      } catch { say("Couldn't save", true); }
     }
 
     panel.querySelectorAll<HTMLButtonElement>('[data-status]').forEach((b) => b.addEventListener('click', () => {
       const s = b.dataset.status!;
       if (s === 'done') save({ status: 'done', completed_at: new Date().toISOString(), review_step: 0, next_review_at: addDays(REVIEW_STEPS[0]) });
       else if (s === 'learning') save({ status: 'learning', completed_at: null, next_review_at: null, review_step: 0 });
-      else save({ status: 'none' });
+      else save('clear');
     }));
-    panel.querySelectorAll<HTMLButtonElement>('[data-conf]').forEach((b) => b.addEventListener('click', () => save({ status: row?.status ?? 'learning', confidence: Number(b.dataset.conf) })));
+    panel.querySelectorAll<HTMLButtonElement>('[data-conf]').forEach((b) => b.addEventListener('click', () => {
+      const n = Number(b.dataset.conf);
+      save({ status: row?.status ?? 'learning', confidence: row?.confidence === n ? null : n });
+    }));
 
     let t = 0;
     note.addEventListener('input', () => {
       clearTimeout(t);
+      statusEl.textContent = 'Typing…';
       t = window.setTimeout(async () => {
-        say('Saving note…');
-        const { error } = await supa.from('lesson_notes').upsert({ course, lesson, body: note.value, updated_at: new Date().toISOString() }, { onConflict: 'user_id,course,lesson' });
-        say(error ? "Couldn't save the note." : 'Note saved');
+        try { await saveNote(course, lesson, note.value); say('Note saved'); } catch { say("Couldn't save note", true); }
       }, 800);
     });
 
-    document.getElementById('log-btn')!.addEventListener('click', async () => {
-      const minutes = Number((document.getElementById('log-min') as HTMLInputElement).value);
-      if (!minutes || minutes < 1) { say('Enter the minutes you studied.'); return; }
-      const { error } = await supa.from('journal_entries').insert({ minutes, course, lesson, note: document.querySelector('h1')?.textContent ?? '' });
-      say(error ? "Couldn't log that session." : `Logged ${minutes} min`);
-    });
+    panel.querySelectorAll<HTMLButtonElement>('[data-log]').forEach((b) => b.addEventListener('click', async () => {
+      const minutes = Number(b.dataset.log);
+      try {
+        await addJournal({ minutes, course, lesson, note: document.querySelector('h1')?.textContent ?? null });
+        b.classList.add('ok');
+        setTimeout(() => b.classList.remove('ok'), 1200);
+        say(`Logged ${minutes} min`);
+      } catch { say("Couldn't log", true); }
+    }));
   })();
 </script>
 
 <style>
   .progress { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 65px); z-index: 4; height: 2px; background: transparent; }
   .progress i { display: block; height: 2px; width: 0; background: var(--accent); }
-  .cols { display: grid; grid-template-columns: 230px minmax(0, 1fr) 260px; gap: 48px; align-items: start; padding-block: 48px 40px; }
-  .outline, .side { position: sticky; top: 96px; display: flex; flex-direction: column; gap: 6px; max-height: calc(100vh - 120px); overflow-y: auto; }
-  .back { margin-bottom: 14px; }
+  .cols { display: grid; grid-template-columns: 230px minmax(0, 1fr) 290px; gap: 44px; align-items: start; padding-block: 48px 40px; }
+  .outline, .side { position: sticky; top: 96px; display: flex; flex-direction: column; gap: 6px; max-height: calc(100vh - 120px); overflow-y: auto; scrollbar-width: thin; }
+  .back { margin-bottom: 14px; font-size: 13.5px; font-weight: 500; color: var(--muted); line-height: 1.35; display: flex; gap: 6px; }
   .back:hover { color: var(--accent); }
   .mtitle { margin-bottom: 8px; }
   .outline ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -279,22 +304,38 @@ const prompt = `Act as a senior ML engineer interviewing me. Topic: "${lesson.ti
   .toc { list-style: none; margin: 10px 0 0; padding: 0 0 0 14px; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
   .toc .h3 { padding-left: 12px; }
   .toc a { color: var(--muted); }
-  .owner { margin-top: 20px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
-  .o-head { display: flex; justify-content: space-between; align-items: center; }
-  .lock { font-size: 10.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
-  .seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  .seg button { border: 0; background: transparent; padding: 9px 4px; font-size: 12.5px; cursor: pointer; min-height: 40px; }
-  .seg button + button { border-left: 1px solid var(--line); }
-  .seg button[aria-pressed='true'] { background: var(--ink); color: var(--on-ink); }
-  .conf { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .stars { display: flex; gap: 4px; }
-  .stars button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-family: var(--f-mono); font-size: 12px; cursor: pointer; }
-  .stars button[aria-pressed='true'] { background: var(--sage-soft); color: var(--sage); border-color: var(--sage); }
-  textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--bg); resize: vertical; font-size: 14px; line-height: 1.5; }
-  .log { display: flex; align-items: center; gap: 8px; }
-  .log input { width: 70px; border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; background: var(--bg); font-family: var(--f-mono); font-size: 13px; }
+  .owner { margin-top: 22px; padding: 18px; display: flex; flex-direction: column; gap: 18px; border-radius: 20px; transition: border-color .3s, box-shadow .3s; }
+  .owner[data-state='learning'] { border-color: color-mix(in srgb, var(--sage) 40%, var(--line)); }
+  .owner[data-state='done'] { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-soft); }
+  .o-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .o-title { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+  .saved { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; white-space: nowrap; transition: color .2s, border-color .2s; }
+  .saved.on { color: var(--sage); border-color: var(--sage); }
+  .saved.bad { color: var(--coral); border-color: var(--coral); }
+  .o-sec { display: flex; flex-direction: column; gap: 8px; }
+  .o-label { font-size: 12.5px; color: var(--muted); }
+  .conf-word { color: var(--fg); }
+  .seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 12px; background: var(--sunk); }
+  .seg button { border: 0; background: transparent; border-radius: 9px; padding: 8px 4px; font-size: 13px; cursor: pointer; min-height: 40px; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--muted); transition: background .15s, color .15s; }
+  .seg button:hover { color: var(--fg); }
+  .seg button[aria-pressed='true'] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 0 0 1px var(--line); font-weight: 500; }
+  .ic { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid currentColor; display: block; }
+  .ic-learning { border-color: var(--sage); background: conic-gradient(var(--sage) 0 50%, transparent 0); }
+  .ic-done { border-color: var(--sage); background: var(--sage); }
+  .review { font-size: 12.5px; color: var(--sage); background: var(--sage-soft); border-radius: 9px; padding: 8px 10px; line-height: 1.45; }
+  .review.due { color: var(--amber); background: var(--amber-soft); }
+  .conf { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .conf button { height: 36px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; cursor: pointer; color: var(--muted); transition: background .15s, color .15s, border-color .15s; }
+  .conf button:hover { border-color: var(--sage); color: var(--fg); }
+  .conf button[aria-pressed='true'] { background: var(--sage); border-color: var(--sage); color: var(--surface); }
+  textarea { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--bg); resize: vertical; font-family: var(--f-serif); font-size: 15.5px; line-height: 1.55; }
+  textarea:focus { outline: none; border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-soft); }
+  .quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .quick button { height: 36px; border-radius: 9px; border: 1px dashed var(--line); background: transparent; font-family: var(--f-mono); font-size: 12.5px; cursor: pointer; color: var(--fg); transition: all .15s; }
+  .quick button:hover { border-style: solid; border-color: var(--sage); color: var(--sage); }
+  .quick button.ok { background: var(--sage); color: var(--surface); border-style: solid; border-color: var(--sage); }
   @media (max-width: 1100px) {
-    .cols { grid-template-columns: minmax(0, 1fr) 260px; }
+    .cols { grid-template-columns: minmax(0, 1fr) 290px; }
     .outline { display: none; }
   }
   @media (max-width: 820px) {
